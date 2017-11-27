@@ -37,13 +37,13 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
         return false;
 
     gameWindow.renderer = sdl.createRenderer(
-        gameWindow.window, 
-        -1, 
+        gameWindow.window,
+        -1,
         RendererFlags
         )
-    
+
     if gameWindow.renderer == nil:
         stderr.writeLine("sdl.createRenderer returned nil", -1)
         return false
-    
+
     return true
