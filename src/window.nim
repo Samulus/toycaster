@@ -47,3 +47,10 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
         return false
 
     return true
+
+proc swapBuffers*(gameWindow: var GameWindow): void =
+    sdl.clearError();
+    discard sdl.setRenderDrawColor(gameWindow.renderer, 0, 0, 0, 0)
+    discard sdl.renderClear(gameWindow.renderer)
+    sdl.renderPresent(gameWindow.renderer)
+    #discard sdl.renderPresent(gameWindow.renderer)
