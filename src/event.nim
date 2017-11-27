@@ -5,5 +5,12 @@
 
 import sdl2/sdl
 
-proc has_event(event: sdl.Event): bool =
+proc hasEvent*(gameEvent: var sdl.Event): bool =
+    sdl.clearError();
+
+    var maybeEvent: ptr sdl.Event;
+    if (sdl.waitEventTimeout(maybeEvent, 0)) < 0:
+        return false;
+
+    gameEvent = (maybeEvent)[]
     return true
