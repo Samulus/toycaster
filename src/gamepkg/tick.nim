@@ -11,10 +11,10 @@ const
 
 var
     LastTime: float = 0
-    TickingStarted = false
     Lag: float = 0
+    TickingStarted = false
 
-func timeSinceLastFrame*(): float =
+func update*(): float =
     if not TickingStarted:
         TickingStarted = true
         LastTime = sdl.getPerformanceCounter().float

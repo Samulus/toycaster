@@ -10,34 +10,40 @@ import gamepkg/event
 import gamepkg/player
 import gamepkg/input
 import gamepkg/tick
+import gamepkg/units
 
 var gameWindow: GameWindow;
 
 if not createGameWindow(gameWindow):
-  stderr.writeLine("Failure to create GameWindow", -1)
+  sdl.logCritical(LOG_CATEGORY_VIDEO, "Failure to create GameWindow", -1)
 
 var running = true;
 
 let p = player.ctor();
 
 while running:
-  paintBlack(gameWindow)
-
-  let keyboard = keyboardState()
-  let dt = tick.timeSinceLastFrame();
+  # Tick gameloop every frame
+  let dt = tick.update();
 
   # Handle Input
   let event = getEvent()
   if event.isSome():
     case event.get().kind:
+      # Application Quit Events
       of EventKind.QUIT:
         running = false;
+      # Keyboard Events
+      of EventKind.KEYDOWN, EventKind.KEYUP:
+        var direction: Direction
+        if input.isMovementKey(event.get().key, direction):
+          p.move(direction, event.get().key.state == sdl.PRESSED)
       else:
         discard
 
   # Update Game
   while tick.hasLag():
-    discard # update()
+    p.update(dt)
 
   # Render Game
-  discard
+  echo repr(p)
+  paintBlack(gameWindow)
