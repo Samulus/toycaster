@@ -9,6 +9,7 @@ import gamepkg/window
 import gamepkg/event
 import gamepkg/player
 import gamepkg/input
+import gamepkg/tick
 
 var gameWindow: GameWindow;
 
@@ -23,7 +24,9 @@ while running:
   paintBlack(gameWindow)
 
   let keyboard = keyboardState()
+  let dt = tick.timeSinceLastFrame();
 
+  # Handle Input
   let event = getEvent()
   if event.isSome():
     case event.get().kind:
@@ -31,3 +34,10 @@ while running:
         running = false;
       else:
         discard
+
+  # Update Game
+  while tick.hasLag():
+    discard # update()
+
+  # Render Game
+  discard
