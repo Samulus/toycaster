@@ -11,6 +11,7 @@ import gamepkg/player
 import gamepkg/input
 import gamepkg/tick
 import gamepkg/units
+import gamepkg/map
 
 var gameWindow: GameWindow;
 
@@ -20,6 +21,11 @@ if not createGameWindow(gameWindow):
 var running = true;
 
 let p = player.ctor();
+
+let level = mapToArray("levels/001.txt")
+if level.isNone:
+  sdl.logCritical(LOG_CATEGORY_APPLICATION, "Unable to open %s", "levels/001.txt")
+  quit(QuitFailure)
 
 while running:
   # Tick gameloop every frame
