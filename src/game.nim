@@ -52,5 +52,4 @@ while running:
     p.update(dt)
 
   # Render Game
-  echo repr(p)
   paintBlack(gameWindow)
