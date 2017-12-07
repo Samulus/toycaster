@@ -17,6 +17,7 @@ var gameWindow: GameWindow;
 
 if not createGameWindow(gameWindow):
   sdl.logCritical(LOG_CATEGORY_VIDEO, "Failure to create GameWindow", -1)
+  quit(QuitFailure)
 
 var running = true;
 
