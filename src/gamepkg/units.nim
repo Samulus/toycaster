@@ -7,6 +7,9 @@ type
     Meter* = float32
 
 type
+    Pixels* = int
+
+type
     Direction* = enum
         Forward,
         Backward,
