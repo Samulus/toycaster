@@ -4,3 +4,6 @@ game
 
 # Images
 *.bmp
+
+# Offline Kanban
+kanban.md
