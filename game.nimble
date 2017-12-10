@@ -8,3 +8,6 @@ bin           = @["game"]
 
 requires      "sdl2_nim >= 2.0.7.0"
 requires      "easygl >= 0.1.0"
+
+# Add nimBMP dependency for debugging generated images
+requires      "nimBmp >= 0.1.5"
