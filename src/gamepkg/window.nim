@@ -74,10 +74,10 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
         return false
 
     loadExtensions()
-    easygl.Enable(Capability.DEPTH_TEST)
+    easygl.enable(Capability.DEPTH_TEST)
     return true
 
 proc paintBlack*(gameWindow: var GameWindow): void =
-    easygl.ClearColor(0,0,0,1)
-    easygl.Clear(BufferMask.COLOR_BUFFER_BIT)
+    easygl.clearColor(0,0,0,1)
+    easygl.clear(BufferMask.COLOR_BUFFER_BIT)
     sdl.glSwapWindow(gameWindow.window)
