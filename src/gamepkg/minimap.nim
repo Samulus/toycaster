@@ -29,7 +29,7 @@ proc maxColLength(map: LevelMap): int =
             max = row.len
     return max
 
-proc mapToBitmap*(map: LevelMap): RGBAImage =
+proc toRGBAImage*(map: LevelMap): RGBAImage =
     # Dimensions of the generated image
     let imageWidthPixels = BlockSize * map.maxColLength
     let imageHeightPixels = BlockSize * map.len
