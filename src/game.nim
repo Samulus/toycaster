@@ -12,21 +12,29 @@ import gamepkg/input
 import gamepkg/tick
 import gamepkg/units
 import gamepkg/map
+import gamepkg/minimap
+import gamepkg/gl/mapRender
 
+# Create the main application window
 var gameWindow: GameWindow;
-
 if not createGameWindow(gameWindow):
   sdl.logCritical(LOG_CATEGORY_VIDEO, "Failure to create GameWindow", -1)
   quit(QuitFailure)
 
-var running = true;
-
-let p = player.ctor();
-
-let level = mapToArray("levels/001.txt")
-if level.isNone:
+# Load map from disk into memory
+let mapArr = mapToArray("levels/001.txt")
+if mapArr.isNone:
   sdl.logCritical(LOG_CATEGORY_APPLICATION, "Unable to open %s", "levels/001.txt")
   quit(QuitFailure)
+
+# Generate map image from array data
+let mapImage = mapArr.get().toRGBAImage()
+mapRender.init()
+mapRender.setup()
+
+# Create game entities && start main loop
+let p = player.ctor();
+var running = true;
 
 while running:
   # Tick gameloop every frame
@@ -39,6 +47,7 @@ while running:
       # Application Quit Events
       of EventKind.QUIT:
         running = false;
+        break;
       # Keyboard Events
       of EventKind.KEYDOWN, EventKind.KEYUP:
         var direction: Direction
@@ -52,4 +61,7 @@ while running:
     p.update(dt)
 
   # Render Game
-  paintBlack(gameWindow)
+  paintBlack()
+  mapRender.prime()
+  mapRender.render()
+  swapWindow(gameWindow)
