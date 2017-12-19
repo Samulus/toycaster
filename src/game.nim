@@ -4,6 +4,8 @@
 #
 
 import sdl2/sdl
+import easygl
+import opengl
 import options
 import gamepkg/window
 import gamepkg/event
@@ -27,10 +29,9 @@ if mapArr.isNone:
   sdl.logCritical(LOG_CATEGORY_APPLICATION, "Unable to open %s", "levels/001.txt")
   quit(QuitFailure)
 
-# Generate map image from array data
-let mapImage = mapArr.get().toRGBAImage()
+# Init mapRender
 mapRender.init()
-mapRender.setup()
+mapRender.use()
 
 # Create game entities && start main loop
 let p = player.ctor();
@@ -44,15 +45,25 @@ while running:
   let event = getEvent()
   if event.isSome():
     case event.get().kind:
+
       # Application Quit Events
       of EventKind.QUIT:
         running = false;
         break;
+
       # Keyboard Events
       of EventKind.KEYDOWN, EventKind.KEYUP:
         var direction: Direction
         if input.isMovementKey(event.get().key, direction):
           p.move(direction, event.get().key.state == sdl.PRESSED)
+
+      # Window Resize Event
+      of EventKind.WINDOWEVENT:
+        if event.get().window.event == WINDOWEVENT_RESIZED:
+          let width = event.get().window.data1
+          let height = event.get().window.data2
+          window.resize(width, height)
+
       else:
         discard
 
@@ -61,7 +72,6 @@ while running:
     p.update(dt)
 
   # Render Game
-  paintBlack()
-  mapRender.prime()
+  window.clear()
   mapRender.render()
-  swapWindow(gameWindow)
+  window.swap(gameWindow)

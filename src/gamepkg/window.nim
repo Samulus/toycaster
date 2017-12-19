@@ -26,6 +26,16 @@ type GameWindow* = ref object of RootObj
     window*: sdl.Window
     glContext*: sdl.GLContext
 
+proc clear*(): void =
+    clearColor(0, 0, 0, 1)
+    clear(BufferMask.COLOR_BUFFER_BIT, BufferMask.DEPTH_BUFFER_BIT, BufferMask.STENCIL_BUFFER_BIT)
+
+proc resize*(width: int, height: int): void =
+    glViewport(0, 0, width, height)
+
+proc swap*(gameWindow: var GameWindow): void =
+    sdl.glSwapWindow(gameWindow.window)
+
 proc createGameWindow*(gameWindow: var GameWindow): bool =
     sdl.clearError()
     gameWindow = GameWindow()
@@ -57,27 +67,23 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
             sdl.logError(sdl.LOG_CATEGORY_VIDEO, sdl.getError())
             return false
 
-    if sdl.glMakeCurrent(gameWindow.window, gameWindow.glContext) < 0:
-        sdl.logError(sdl.LOG_CATEGORY_VIDEO, "glMakeCurrent failed:")
-        sdl.logError(sdl.LOG_CATEGORY_VIDEO, sdl.getError())
-        return false
-
     gameWindow.glContext = sdl.glCreateContext(gameWindow.window)
     if gameWindow == nil:
         sdl.logError(sdl.LOG_CATEGORY_VIDEO, "glCreateContext failed:")
         sdl.logError(sdl.LOG_CATEGORY_VIDEO, sdl.getError())
         return false
 
+    loadExtensions()
+
     if sdl.glSetSwapInterval(1) < 0:
         sdl.logError(sdl.LOG_CATEGORY_VIDEO, "glSetSwapInterval failed:")
         sdl.logError(sdl.LOG_CATEGORY_VIDEO, sdl.getError())
         return false
 
-    loadExtensions()
+    # Resize Viewport
+    resize(Width, Height)
+
+    # Enable Capabilities
     easygl.enable(Capability.DEPTH_TEST)
     return true
 
-proc paintBlack*(gameWindow: var GameWindow): void =
-    easygl.clearColor(0,0,0,1)
-    easygl.clear(BufferMask.COLOR_BUFFER_BIT)
-    sdl.glSwapWindow(gameWindow.window)
