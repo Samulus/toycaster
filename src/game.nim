@@ -7,6 +7,8 @@ import sdl2/sdl
 import easygl
 import opengl
 import options
+
+# Core Modules
 import gamepkg/window
 import gamepkg/event
 import gamepkg/player
@@ -15,7 +17,10 @@ import gamepkg/tick
 import gamepkg/units
 import gamepkg/map
 import gamepkg/minimap
+
+# OpenGL Modules
 import gamepkg/gl/mapRender
+import gamepkg/gl/wallRender
 
 # Create the main application window
 var gameWindow: GameWindow;
@@ -29,9 +34,12 @@ if mapArr.isNone:
   sdl.logCritical(LOG_CATEGORY_APPLICATION, "Unable to open %s", "levels/001.txt")
   quit(QuitFailure)
 
-# Init mapRender
+# Init mapRenders
 mapRender.init()
-mapRender.use()
+wallRender.init()
+
+# Upload map to wall renderer
+wallRender.uploadMap(mapArr.get())
 
 # Create game entities && start main loop
 let p = player.ctor();
@@ -73,5 +81,8 @@ while running:
 
   # Render Game
   window.clear()
+  mapRender.use()
   mapRender.render()
+  wallRender.use()
+  wallRender.render()
   window.swap(gameWindow)

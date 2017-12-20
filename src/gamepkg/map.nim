@@ -13,9 +13,9 @@ import options
 
 type
     TileType* = enum
-        Empty = 0,
-        Wall = 1,
-        Player = 2,
+        Empty = 0.uint8,
+        Wall = 1.uint8,
+        Player = 2.uint8,
 
 type
     LevelMap* = seq[seq[TileType]]
