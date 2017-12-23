@@ -1,12 +1,16 @@
 #version 330 core
 out vec4 FragColor;
 
-// TODO: Avoid hardcoding mapData
-const uint ROWS = uint(9);
-const uint COLS = uint(7);
-uniform uint[int(ROWS * COLS)] mapData;
-uniform vec2 player;
+const int MaximumColumns = 16;
+uniform uint[MaximumColumns] walls;
 
 void main() {
-    FragColor = vec4(gl_FragCoord.x, gl_FragCoord.y, mapData[0], 1.0f);
+    float x = gl_FragCoord.x;
+
+    if (x < MaximumColumns) {
+        float v = walls[int(x)];
+        FragColor = vec4(v, v, v, 1);
+    } else {
+        FragColor = vec4(1, 0, 0, 1);
+    }
 }

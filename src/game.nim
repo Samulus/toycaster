@@ -39,7 +39,7 @@ mapRender.init()
 wallRender.init()
 
 # Upload map to wall renderer
-wallRender.uploadMap(mapArr.get())
+#wallRender.uploadMap(mapArr.get())
 
 # Create game entities && start main loop
 let p = player.ctor();
