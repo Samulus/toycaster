@@ -9,6 +9,8 @@ import sequtils
 import colors
 import nimBMP
 
+import gl/image
+
 const
     BlockSize = 24.Pixels
     ColorChannels = 4
@@ -16,11 +18,6 @@ const
 const
     Black = rgb(0, 0, 0)
     White = rgb(255,255,255)
-
-type RGBAImage = ref object of RootObj
-    width: uint
-    height: uint
-    bytes: seq[uint8]
 
 proc maxColLength(map: LevelMap): int =
     var max = 0
