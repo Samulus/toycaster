@@ -30,8 +30,9 @@ proc clear*(): void =
     clearColor(0, 0, 0, 1)
     clear(BufferMask.COLOR_BUFFER_BIT, BufferMask.DEPTH_BUFFER_BIT, BufferMask.STENCIL_BUFFER_BIT)
 
-proc resize*(width: int, height: int): void =
-    glViewport(0, 0, width, height)
+proc resize*(width, height: uint): void =
+    # TODO: Potential overflow
+    glViewport(0, 0, width.int, height.int)
 
 proc width*(window: GameWindow): uint =
     var w: cint
