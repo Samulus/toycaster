@@ -12,23 +12,19 @@ import colors
 import image
 import nimBMP
 import opengl
+import easygl
 
-const
-    MaximumScreenWidth = 4096
-
-var
-    DistanceTexture: GrayImage
-    Created = false
+const MaximumScreenWidth = 4096
+var DistanceTexture: GrayImage
 
 proc regenerateImage*(actualScreenWidth: uint): var GrayImage =
-    if not Created:
-        Created = true
-        DistanceTexture = GrayImage()
-        DistanceTexture.width = actualScreenWidth
-        DistanceTexture.height = 1
-        # We always allocate the maximum size even if the screen
-        # is smaller to prevent reallocations on window resizing
-        DistanceTexture.bytes = newSeqWith(MaximumScreenWidth, 0.uint8)
+    if isNil(DistanceTexture):
+        DistanceTexture = GrayImage(
+            width: actualScreenWidth,
+            height: 1,
+            bytes: newSeqWith(MaximumScreenWidth, 0.uint8),
+            format: GL_R8UI.TextureInternalFormat
+        )
 
     let limit = min(actualScreenWidth, MaximumScreenWidth)
     for px in countup(0, int(limit - 1), 1):
