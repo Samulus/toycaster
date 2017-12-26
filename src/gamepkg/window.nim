@@ -33,6 +33,18 @@ proc clear*(): void =
 proc resize*(width: int, height: int): void =
     glViewport(0, 0, width, height)
 
+proc width*(window: GameWindow): uint =
+    var w: cint
+    var h: cint
+    glGetDrawableSize(window.window, w.addr, h.addr)
+    return if w < 0: 0 else: w
+
+proc height*(window: GameWindow): uint =
+    var w: cint
+    var h: cint
+    glGetDrawableSize(window.window, w.addr, h.addr)
+    return if h < 0: 0 else: h
+
 proc swap*(gameWindow: var GameWindow): void =
     sdl.glSwapWindow(gameWindow.window)
 
