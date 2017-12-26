@@ -21,6 +21,7 @@ import gamepkg/minimap
 # OpenGL Modules
 import gamepkg/gl/mapRender
 import gamepkg/gl/wallRender
+import gamepkg/gl/distanceTexture
 
 # Create the main application window
 var gameWindow: GameWindow;
@@ -38,8 +39,9 @@ if mapArr.isNone:
 mapRender.init()
 wallRender.init()
 
-# Upload map to wall renderer
-#wallRender.uploadMap(mapArr.get())
+# Generate 1D texture with wall heights
+let distances = distanceTexture.regenerateImage(gameWindow.width())
+wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
 # Create game entities && start main loop
 let p = player.ctor();
@@ -68,9 +70,10 @@ while running:
       # Window Resize Event
       of EventKind.WINDOWEVENT:
         if event.get().window.event == WINDOWEVENT_RESIZED:
-          let width = event.get().window.data1
-          let height = event.get().window.data2
+          let width = gameWindow.width()
+          let height = gameWindow.height()
           window.resize(width, height)
+          wallRender.use(width, height, distances)
 
       else:
         discard
@@ -83,6 +86,6 @@ while running:
   window.clear()
   mapRender.use()
   mapRender.render()
-  wallRender.use()
+  #wallRender.use(distances)
   wallRender.render()
   window.swap(gameWindow)

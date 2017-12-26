@@ -1,16 +1,18 @@
+/*
+    wall.frag
+    Author: Samuel Vargas
+
+    wallData - Really long 1D texture that is guaranteed to be
+    be either min(gameWindow.width, MaximumScreenWidth)
+*/
+
 #version 330 core
 out vec4 FragColor;
 
-const int MaximumColumns = 16;
-uniform uint[MaximumColumns] walls;
+uniform uvec2 iResolution;
+uniform sampler2D wallData;
 
 void main() {
-    float x = gl_FragCoord.x;
-
-    if (x < MaximumColumns) {
-        float v = walls[int(x)];
-        FragColor = vec4(v, v, v, 1);
-    } else {
-        FragColor = vec4(1, 0, 0, 1);
-    }
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    FragColor = vec4(uv, 0, 1);
 }
