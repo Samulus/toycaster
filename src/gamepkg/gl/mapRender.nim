@@ -42,10 +42,10 @@ proc use*(): void =
     bindVertexArray(VAO)
     # Copy Vertices to GPU Buffer
     bindBuffer(BufferTarget.ARRAY_BUFFER, VBO)
-    bufferData(BufferTarget.ARRAY_BUFFER, vertices, BufferDataUsage.STATIC_DRAW)
+    bufferData(BufferTarget.ARRAY_BUFFER, vertices, BufferDataUsage.DYNAMIC_DRAW)
     # Copy Element Indices to GPU Buffer
     bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, EBO)
-    bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, indices, BufferDataUsage.STATIC_DRAW)
+    bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, indices, BufferDataUsage.DYNAMIC_DRAW)
     # Vertex Attribute Pointers
     vertexAttribPointer(0, 3, VertexAttribType.FLOAT, false, 3 * float32.sizeof(), 0)
     enableVertexAttribArray(0)

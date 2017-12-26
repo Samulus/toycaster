@@ -40,7 +40,7 @@ mapRender.init()
 wallRender.init()
 
 # Generate 1D texture with wall heights
-let distances = distanceTexture.regenerateImage(gameWindow.width())
+var distances = distanceTexture.regenerateImage(gameWindow.width())
 wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
 # Create game entities && start main loop
@@ -72,6 +72,7 @@ while running:
         if event.get().window.event == WINDOWEVENT_RESIZED:
           let width = gameWindow.width()
           let height = gameWindow.height()
+          distances = distanceTexture.regenerateImage(gameWindow.width())
           window.resize(width, height)
           wallRender.use(width, height, distances)
 
@@ -86,6 +87,6 @@ while running:
   window.clear()
   mapRender.use()
   mapRender.render()
-  #wallRender.use(distances)
+  wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
   wallRender.render()
   window.swap(gameWindow)

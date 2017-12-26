@@ -27,9 +27,11 @@ proc regenerateImage*(actualScreenWidth: uint): var GrayImage =
         )
 
     let limit = min(actualScreenWidth, MaximumScreenWidth)
+    DistanceTexture.width = limit
+
     for px in countup(0, int(limit - 1), 1):
         # Create a banding effect for image testing
         if px mod 4 == 0:
-            DistanceTexture.bytes[px] = high(uint8)
+            DistanceTexture.bytes[px] = 64
 
     return DistanceTexture

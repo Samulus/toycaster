@@ -2,8 +2,6 @@
     wall.frag
     Author: Samuel Vargas
 
-    wallData - Really long 1D texture that is guaranteed to be
-    be either min(gameWindow.width, MaximumScreenWidth)
 */
 
 #version 330 core
@@ -13,6 +11,8 @@ uniform uvec2 iResolution;
 uniform sampler2D wallData;
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    FragColor = vec4(uv, 0, 1);
+    //uint xLoc = min(uint(gl_FragCoord.x), iResolution.x);
+    uint xLoc = uint(gl_FragCoord.x);
+    vec4 val = texelFetch(wallData, ivec2(xLoc, 0), 0);
+    FragColor=vec4(val.rr, gl_FragCoord.x / iResolution.x, 1);
 }
