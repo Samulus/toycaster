@@ -75,7 +75,7 @@ proc use*(screenHeight, screenWidth: uint, distances: GrayImage): void =
     assert(iResolution.int != -1, "Missing Uniform: " & $iResolutionName)
     glUniform2ui(iResolution.GLint, screenWidth.GLuint, screenHeight.GLuint)
 
-    # Activae and Bind Texture
+    # Activate and Bind Texture
     activeTexture(TextureUnit.TEXTURE0)
     bindTexture(TextureTarget.TEXTURE_2D, Tex)
 

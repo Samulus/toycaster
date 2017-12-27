@@ -43,6 +43,9 @@ wallRender.init()
 var distances = distanceTexture.regenerateImage(gameWindow.width())
 wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
+# Generate minimap texture
+let minimapImage = minimap.toRGBAImage(mapArr.get())
+
 # Create game entities && start main loop
 let p = player.ctor();
 var running = true;
@@ -85,7 +88,7 @@ while running:
 
   # Render Game
   window.clear()
-  mapRender.use()
+  mapRender.use(minimapImage)
   mapRender.render()
   wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
   wallRender.render()
