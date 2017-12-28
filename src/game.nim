@@ -36,7 +36,7 @@ if mapArr.isNone:
   quit(QuitFailure)
 
 # Init mapRenders
-mapRender.init()
+mapRender.init(gameWindow.width(), gameWindow.height())
 wallRender.init()
 
 # Generate 1D texture with wall heights

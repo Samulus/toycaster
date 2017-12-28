@@ -5,18 +5,21 @@
 
 import ../minimap
 import image
+import sdl2/sdl_image
+import sdl2/sdl
 import opengl
 import easygl
 import easygl.utils
 
 # Set up vertex data
-let vertices : seq[float32]  =
+let mapVertices : seq[float32]  =
   @[
   # Vertex Locations (XYZ)
   0.5'f32,  0.5'f32, 0.0'f32,  # top right
   0.5'f32, -0.5'f32, 0.0'f32,  # bottom right
  -0.5'f32, -0.5'f32, 0.0'f32,  # bottom left
  -0.5'f32,  0.5'f32, 0.0'f32,  # top left
+
   # Texture Coordinate Locations (ST)
   1'f32, 1'f32, # top right
   1'f32, 0'f32, # bottom right
@@ -24,12 +27,20 @@ let vertices : seq[float32]  =
   0'f32, 1'f32, # top left
   ]
 
-let indices : seq[uint32] =
+let mapIndices : seq[uint32] =
+  @[
+  0'u32, 1'u32, 3'u32,   # first triangle
+  1'u32, 2'u32, 3'u32 ]  # second triangle
+
+var playerVertices: seq[float32]
+
+let playerIndices : seq[uint32] =
   @[
   0'u32, 1'u32, 3'u32,   # first triangle
   1'u32, 2'u32, 3'u32 ]  # second triangle
 
 const
+    PlayerIconPath = "./images/player.png"
     fragShaderPath = "./glsl/hello_triangle.frag"
     vertShaderPath = "./glsl/hello_triangle.vert"
     MinimapUniformName = "minimapImage"
@@ -43,24 +54,26 @@ var
     EBO: BufferId
     Shader: ShaderProgramId
     Tex: TextureId
+    PlayerImage: OpenGLImage
 
-proc init*(): void =
+proc init*(screenWidth, screenHeight: uint): void =
     Shader = createAndLinkProgram(vertShaderPath, fragShaderPath)
     VAO = genVertexArray()
     VBO = genBuffer()
     EBO = genBuffer()
     Tex = genTexture()
     bindVertexArray(VAO)
+    PlayerImage = fileToGLImage(PlayerIconPath, screenWidth, screenHeight)
 
 proc use*(mapImage: RGBAImage): void =
     # Bind VAO
     bindVertexArray(VAO)
     # Copy Vertices to GPU Buffer
     bindBuffer(BufferTarget.ARRAY_BUFFER, VBO)
-    bufferData(BufferTarget.ARRAY_BUFFER, vertices, BufferDataUsage.DYNAMIC_DRAW)
+    bufferData(BufferTarget.ARRAY_BUFFER, mapVertices, BufferDataUsage.DYNAMIC_DRAW)
     # Copy Element Indices to GPU Buffer
     bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, EBO)
-    bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, indices, BufferDataUsage.DYNAMIC_DRAW)
+    bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, mapIndices, BufferDataUsage.DYNAMIC_DRAW)
     # Vertex (XYZ) vertexAttribPointer
     vertexAttribPointer(0, 3, VertexAttribType.FLOAT, false, 3 * float32.sizeof(), 0)
     enableVertexAttribArray(0)
@@ -90,6 +103,8 @@ proc use*(mapImage: RGBAImage): void =
     texImage2D(TexImageTarget.TEXTURE_2D, 0.int32,
                GL_RGBA8.TextureInternalFormat, mapImage.width.int32, mapImage.height.int32,
                PixelDataFormat.RGBA, PixelDataType.UNSIGNED_BYTE, mapImage.bytes)
+
+    # Upload 'playerImage' data
 
 proc render*(): void =
     Shader.use()
