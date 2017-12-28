@@ -7,7 +7,6 @@ import map
 import units
 import sequtils
 import colors
-import nimBMP
 
 import gl/image
 

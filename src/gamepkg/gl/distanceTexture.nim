@@ -10,7 +10,6 @@
 import sequtils
 import colors
 import image
-import nimBMP
 import opengl
 import easygl
 
