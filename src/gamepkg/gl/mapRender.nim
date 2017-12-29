@@ -41,8 +41,8 @@ let playerIndices : seq[uint32] =
 
 const
     PlayerIconPath = "./images/player.png"
-    fragShaderPath = "./glsl/hello_triangle.frag"
-    vertShaderPath = "./glsl/hello_triangle.vert"
+    fragShaderPath = "./glsl/map.frag"
+    vertShaderPath = "./glsl/map.vert"
     MinimapUniformName = "minimapImage"
 
 let
