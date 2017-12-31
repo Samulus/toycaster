@@ -5,9 +5,6 @@ game
 # Images
 *.bmp
 
-# Offline Kanban
-kanban.md
-
 # GLSL Debugging
 *.log
 *.trace
