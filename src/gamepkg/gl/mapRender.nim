@@ -12,7 +12,7 @@ import easygl
 import easygl.utils
 
 # Set up vertex data
-let mapVertices : seq[float32]  =
+var Vertices : seq[float32]  =
   @[
   # Vertex Locations (XYZ)
   0.5'f32,  0.5'f32, 0.0'f32,  # top right
@@ -27,23 +27,15 @@ let mapVertices : seq[float32]  =
   0'f32, 1'f32, # top left
   ]
 
-let mapIndices : seq[uint32] =
-  @[
-  0'u32, 1'u32, 3'u32,   # first triangle
-  1'u32, 2'u32, 3'u32 ]  # second triangle
-
-var playerVertices: seq[float32]
-
-let playerIndices : seq[uint32] =
+let Indices : seq[uint32] =
   @[
   0'u32, 1'u32, 3'u32,   # first triangle
   1'u32, 2'u32, 3'u32 ]  # second triangle
 
 const
-    PlayerIconPath = "./images/player.png"
-    fragShaderPath = "./glsl/map.frag"
-    vertShaderPath = "./glsl/map.vert"
-    MinimapUniformName = "minimapImage"
+    fragShaderPath = "./glsl/image.frag"
+    vertShaderPath = "./glsl/image.vert"
+    ImageUniformName = "image"
 
 let
     OutOfBoundsColor: seq[GLfloat] = @[0.0f, 0.89803f, 1.0f, 1.0f]
@@ -54,26 +46,24 @@ var
     EBO: BufferId
     Shader: ShaderProgramId
     Tex: TextureId
-    PlayerImage: OpenGLImage
 
-proc init*(screenWidth, screenHeight: uint): void =
+proc init*(): void =
     Shader = createAndLinkProgram(vertShaderPath, fragShaderPath)
     VAO = genVertexArray()
     VBO = genBuffer()
     EBO = genBuffer()
     Tex = genTexture()
     bindVertexArray(VAO)
-    PlayerImage = fileToGLImage(PlayerIconPath, screenWidth, screenHeight)
 
 proc use*(mapImage: RGBAImage): void =
     # Bind VAO
     bindVertexArray(VAO)
     # Copy Vertices to GPU Buffer
     bindBuffer(BufferTarget.ARRAY_BUFFER, VBO)
-    bufferData(BufferTarget.ARRAY_BUFFER, mapVertices, BufferDataUsage.DYNAMIC_DRAW)
+    bufferData(BufferTarget.ARRAY_BUFFER, Vertices, BufferDataUsage.DYNAMIC_DRAW)
     # Copy Element Indices to GPU Buffer
     bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, EBO)
-    bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, mapIndices, BufferDataUsage.DYNAMIC_DRAW)
+    bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, Indices, BufferDataUsage.DYNAMIC_DRAW)
     # Vertex (XYZ) vertexAttribPointer
     vertexAttribPointer(0, 3, VertexAttribType.FLOAT, false, 3 * float32.sizeof(), 0)
     enableVertexAttribArray(0)
@@ -86,9 +76,9 @@ proc use*(mapImage: RGBAImage): void =
     bindTexture(TextureTarget.TEXTURE_2D, Tex)
 
     # Tell GPU to this sampler2d belongs to Texture Unit 0
-    let minimap = getUniformLocation(Shader, MinimapUniformName)
-    assert(minimap.int != -1, "Missing Uniform: " & $MinimapUniformName)
     Shader.use()
+    let minimap = getUniformLocation(Shader, ImageUniformName)
+    assert(minimap.int != -1, "Missing Uniform: " & $ImageUniformName)
     glUniform1i(minimap.GLint, 0.GLint)
 
     # Setup Clamping / Filtering
@@ -104,11 +94,9 @@ proc use*(mapImage: RGBAImage): void =
                GL_RGBA8.TextureInternalFormat, mapImage.width.int32, mapImage.height.int32,
                PixelDataFormat.RGBA, PixelDataType.UNSIGNED_BYTE, mapImage.bytes)
 
-    # Upload 'playerImage' data
-
 proc render*(): void =
     Shader.use()
-    bindVertexArray(VAO) # Not necessary since we only have one VAO
+    bindVertexArray(VAO)
     activeTexture(TextureUnit.TEXTURE0)
     bindTexture(TextureTarget.TEXTURE_2D, Tex)
     drawElements(DrawMode.TRIANGLES, 6, IndexType.UNSIGNED_INT, 0)
