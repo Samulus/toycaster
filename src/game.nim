@@ -20,6 +20,7 @@ import gamepkg/minimap
 
 # OpenGL Modules
 import gamepkg/gl/mapRender
+import gamepkg/gl/playerIcon
 import gamepkg/gl/wallRender
 import gamepkg/gl/distanceTexture
 
@@ -35,9 +36,10 @@ if mapArr.isNone:
   sdl.logCritical(LOG_CATEGORY_APPLICATION, "Unable to open %s", "levels/001.txt")
   quit(QuitFailure)
 
-# Init mapRenders
-mapRender.init(gameWindow.width(), gameWindow.height())
+# Init renderers
+mapRender.init()
 wallRender.init()
+playerIcon.init(gameWindow.width(), gameWindow.height())
 
 # Generate 1D texture with wall heights
 var distances = distanceTexture.regenerateImage(gameWindow.width())
@@ -89,6 +91,7 @@ while running:
   # Render Game
   window.clear()
   mapRender.use(minimapImage)
+  playerIcon.render()
   mapRender.render()
   wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
   wallRender.render()
