@@ -1,4 +1,4 @@
-nimcache/*
+src/nimcache/*
 *.exe
 game
 
