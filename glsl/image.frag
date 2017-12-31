@@ -9,8 +9,10 @@
 in vec2 FragTex;
 out vec4 FragColor;
 
-uniform sampler2D minimapImage;
+uniform sampler2D image;
 
 void main() {
-    FragColor = texture(minimapImage, FragTex);
+    vec4 color = texture(image, FragTex);
+    if (color.a < 0.1) discard;
+    FragColor = color;
 }
