@@ -10,7 +10,6 @@ import options
 
 const
     WalkingSpeed: Meter = 1.4
-    RotateSpeed: Meter = 1.4
     UpAxis = vec3f(0, 1, 0)
 
 type Player = ref object of RootObj
