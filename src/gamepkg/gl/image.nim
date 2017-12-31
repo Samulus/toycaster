@@ -49,8 +49,8 @@ type
 type OpenGLImage* = ref object of RootObj
     width*: uint
     height*: uint
-    vertices*: seq[float32]
-    bytes*: seq[uint32]
+    vertices*: seq[GLfloat]
+    bytes*: seq[uint8]
     components*: ComponentSize
     format*: TextureInternalFormat
     pixelFormat*: PixelDataFormat
@@ -59,8 +59,8 @@ type OpenGLImage* = ref object of RootObj
 const
     # Each 32 bit integer is RGBA (8bits each)
     KnownPixelFormat = PIXELFORMAT_RGBA8888.uint32
-    ComponentsInImage = 2.ComponentSize
-    VerticesInRectangle = 4 * ComponentsInImage
+    ComponentsInImage = 3.ComponentSize
+    VerticesInRectangle = 4 * ComponentsInImage # 4 points * components per point
 
 proc fileToGLImage*(filepath: string, screenWidth, screenHeight: uint): OpenGLImage =
     var tmpImage = sdl_image.load(filepath.cstring)
@@ -72,7 +72,7 @@ proc fileToGLImage*(filepath: string, screenWidth, screenHeight: uint): OpenGLIm
         width: convertedImage.w.uint,
         height: convertedImage.h.uint,
         vertices: newSeqWith(VerticesInRectangle, 0.float32),
-        bytes: newSeqWith(convertedImage.pitch * convertedImage.h, 0.uint32),
+        bytes: newSeqWith(convertedImage.pitch * convertedImage.h, 0.uint8),
         components: ComponentsInImage,
         format: TextureInternalFormat.RGBA,
         pixelFormat: PixelDataFormat.RGBA,
@@ -81,7 +81,8 @@ proc fileToGLImage*(filepath: string, screenWidth, screenHeight: uint): OpenGLIm
 
     # Copy pixel data to internal sequence
     let size = convertedImage.pitch * convertedImage.h
-    var pixelPtr: ptr uint32 = cast[ptr uint32](convertedImage.pixels)
+    var pixelPtr: ptr uint8 = cast[ptr uint8](convertedImage.pixels)
+
     for px in countup(0, size - 1, 1):
         ptrMath:
             result.bytes[px] = pixelPtr[px]
@@ -89,7 +90,8 @@ proc fileToGLImage*(filepath: string, screenWidth, screenHeight: uint): OpenGLIm
     # Generate vertex coordinates from width and height
     let ndcWidth = convertedImage.w.float / screenWidth.float
     let ndcHeight = convertedImage.h.float / screenHeight.float
-    result.vertices[0] = ndcWidth; result.vertices[1] = 0         # top right (x, y)
-    result.vertices[2] = ndcWidth; result.vertices[3] = ndcHeight # bottom right (x, y)
-    result.vertices[4] = 0;        result.vertices[5] = ndcHeight # bottom left (x, y)
-    result.vertices[6] = 0;        result.vertices[7] = 0         # top left (x, y)
+
+    result.vertices[0] = ndcWidth; result.vertices[1] = 0;         result.vertices[2]  = 0 # top right (x, y, z)
+    result.vertices[3] = ndcWidth; result.vertices[4] = ndcHeight; result.vertices[5]  = 0 # bottom right (x, y, z)
+    result.vertices[6] = 0;        result.vertices[7] = ndcHeight; result.vertices[8]  = 0 # bottom left (x, y, z)
+    result.vertices[9] = 0;        result.vertices[10] = 0;        result.vertices[11] = 0 # top left (x, y, z)
