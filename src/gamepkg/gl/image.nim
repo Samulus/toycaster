@@ -95,3 +95,28 @@ proc fileToGLImage*(filepath: string, screenWidth, screenHeight: uint): OpenGLIm
     result.vertices[3] = ndcWidth; result.vertices[4] = ndcHeight; result.vertices[5]  = 0 # bottom right (x, y, z)
     result.vertices[6] = 0;        result.vertices[7] = ndcHeight; result.vertices[8]  = 0 # bottom left (x, y, z)
     result.vertices[9] = 0;        result.vertices[10] = 0;        result.vertices[11] = 0 # top left (x, y, z)
+
+proc pixelsToGLImage*(components: ComponentSize, format: TextureInternalFormat, pixelFormat: PixelDataFormat, pixelType: PixelDataType, widthPx, heightPx, screenWidth, screenHeight: uint, pixels: seq[uint8]): OpenGLImage =
+    result = OpenGLImage(
+        width: widthPx,
+        height: heightPx,
+        vertices: newSeqWith(VerticesInRectangle, 0.float32),
+        bytes: newSeqWith(len(pixels), 0.uint8),
+        components: components,
+        format: format,
+        pixelFormat: pixelFormat,
+        pixelType: pixelType
+    )
+
+    # Copy pixel data to internal result 
+    let size = len(pixels)
+    for px in countup(0, size - 1, 1):
+        result.bytes[px] = pixels[px]
+    
+    # Generate vertex coordinates from width and height
+    let ndcWidth = widthPx.float / screenWidth.float
+    let ndcHeight = heightPx.float / screenHeight.float
+    result.vertices[0] = ndcWidth; result.vertices[1] = 0;         result.vertices[2]  = 0 # top right (x, y, z)
+    result.vertices[3] = ndcWidth; result.vertices[4] = ndcHeight; result.vertices[5]  = 0 # bottom right (x, y, z)
+    result.vertices[6] = 0;        result.vertices[7] = ndcHeight; result.vertices[8]  = 0 # bottom left (x, y, z)
+    result.vertices[9] = 0;        result.vertices[10] = 0;        result.vertices[11] = 0 # top left (x, y, z)

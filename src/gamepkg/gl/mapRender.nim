@@ -55,7 +55,7 @@ proc init*(): void =
     Tex = genTexture()
     bindVertexArray(VAO)
 
-proc use*(mapImage: RGBAImage): void =
+proc use*(mapImage: OpenGLImage): void =
     # Bind VAO
     bindVertexArray(VAO)
     # Copy Vertices to GPU Buffer
@@ -91,8 +91,8 @@ proc use*(mapImage: RGBAImage): void =
 
     # Upload to GPU
     texImage2D(TexImageTarget.TEXTURE_2D, 0.int32,
-               GL_RGBA8.TextureInternalFormat, mapImage.width.int32, mapImage.height.int32,
-               PixelDataFormat.RGBA, PixelDataType.UNSIGNED_BYTE, mapImage.bytes)
+               mapImage.format, mapImage.width.int32, mapImage.height.int32,
+               mapImage.pixelFormat, mapImage.pixelType, mapImage.bytes)
 
 proc render*(): void =
     Shader.use()

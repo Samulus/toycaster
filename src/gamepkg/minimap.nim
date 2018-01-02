@@ -7,14 +7,17 @@ import map
 import units
 import sequtils
 import colors
+import easygl
+import opengl
 
 import gl/image
 
 const
     BlockSize = 24.Pixels
     ColorChannels = 4
-
-const
+    TextureFormat = GL_RGBA8.TextureInternalFormat
+    PixelFormat = PixelDataFormat.RGBA
+    PixelType = PixelDataType.UNSIGNED_BYTE
     Black = rgb(0, 0, 0)
     White = rgb(255,255,255)
 
@@ -25,7 +28,7 @@ proc maxColLength(map: LevelMap): int =
             max = row.len
     return max
 
-proc toRGBAImage*(map: LevelMap): RGBAImage =
+proc toOpenGLImage*(map: LevelMap, screenWidth, screenHeight: uint): OpenGLImage =
     # Dimensions of the generated image
     let imageWidthPixels = BlockSize * map.maxColLength
     let imageHeightPixels = BlockSize * map.len
@@ -66,7 +69,6 @@ proc toRGBAImage*(map: LevelMap): RGBAImage =
                 break
 
     # Return the generated image
-    result = RGBAImage()
-    result.width = imageWidthPixels.uint8
-    result.height = imageHeightPixels.uint8
-    result.bytes = pixelBytes
+    return pixelsToGLImage(ColorChannels, TextureFormat, PixelFormat, PixelType, 
+                           imageWidthPixels.uint, imageHeightPixels.uint, screenWidth, screenHeight,
+                           pixelBytes)

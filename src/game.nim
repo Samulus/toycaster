@@ -46,7 +46,7 @@ var distances = distanceTexture.regenerateImage(gameWindow.width())
 wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
 # Generate minimap texture
-let minimapImage = minimap.toRGBAImage(mapArr.get())
+let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
 
 # Create game entities && start main loop
 let p = player.ctor();
