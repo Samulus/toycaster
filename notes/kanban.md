@@ -14,7 +14,8 @@
 * Allow the player to wallk around in 2D space.
 
 # ⏲️  In Progress
-* Minimap should keep correct aspect ratio
 * Map and playerIcon do not render correctly on Windows
 
 # ✔️  Done
+* Minimap should keep correct aspect ratio
+* DistanceTexture should use OpenGLImage

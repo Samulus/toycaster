@@ -13,24 +13,33 @@ import image
 import opengl
 import easygl
 
-const MaximumScreenWidth = 4096
-var DistanceTexture: GrayImage
+const 
+    MaximumScreenWidth = 4096 #  4k resolution support for now
+    TextureFormat = GL_RED.TextureInternalFormat
+    PixelFormat = PixelDataFormat.RED
+    PixelType = PixelDataType.UNSIGNED_BYTE
 
-proc regenerateImage*(actualScreenWidth: uint): var GrayImage =
-    if isNil(DistanceTexture):
-        DistanceTexture = GrayImage(
-            width: actualScreenWidth,
-            height: 1,
+var DistanceTexture: OpenGLImage
+
+proc regenerateImage*(screenWidth, screenHeight: uint): var OpenGLImage =
+   let 
+      widthPx = min(screenWidth, MaximumScreenWidth)
+      heightPx = uint(1)
+
+   if isNil(DistanceTexture):
+        DistanceTexture = OpenGLImage(
+            width: widthPx,
+            height: heightPx,
+            vertices: generateRectangleVertices(widthPx.float / screenWidth.float, heightPx.float / screenHeight.float),
             bytes: newSeqWith(MaximumScreenWidth, 0.uint8),
-            format: GL_R8UI.TextureInternalFormat
-        )
+            components: 1,
+            format: TextureFormat,
+            pixelFormat: PixelFormat,
+            pixelType: PixelType)
 
-    let limit = min(actualScreenWidth, MaximumScreenWidth)
-    DistanceTexture.width = limit
+   # Generate banding effect for debugging
+   for px in countup(0, int(widthPx - 1), 1):
+       if px mod 4 == 0:
+           DistanceTexture.bytes[px] = 64
 
-    for px in countup(0, int(limit - 1), 1):
-        # Create a banding effect for image testing
-        if px mod 4 == 0:
-            DistanceTexture.bytes[px] = 64
-
-    return DistanceTexture
+   return DistanceTexture

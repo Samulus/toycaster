@@ -11,20 +11,12 @@ import opengl
 import easygl
 import easygl.utils
 
-# Set up vertex data
-var Vertices : seq[float32]  =
+var TextureCoordinates : seq[GLfloat]  =
   @[
-  # Vertex Locations (XYZ)
-  0.5'f32,  0.5'f32, 0.0'f32,  # top right
-  0.5'f32, -0.5'f32, 0.0'f32,  # bottom right
- -0.5'f32, -0.5'f32, 0.0'f32,  # bottom left
- -0.5'f32,  0.5'f32, 0.0'f32,  # top left
-
-  # Texture Coordinate Locations (ST)
-  1'f32, 1'f32, # top right
-  1'f32, 0'f32, # bottom right
-  0'f32, 0'f32, # bottom left
-  0'f32, 1'f32, # top left
+  1f, 1f, # top right
+  1f, 0f, # bottom right
+  0f, 0f, # bottom left
+  0f, 1f, # top left
   ]
 
 let Indices : seq[uint32] =
@@ -56,14 +48,22 @@ proc init*(): void =
     bindVertexArray(VAO)
 
 proc use*(mapImage: OpenGLImage): void =
-    # Bind VAO
+
     bindVertexArray(VAO)
-    # Copy Vertices to GPU Buffer
+
+    # Load vertex / texture coordinate data into GPU
+    let vertexByteCount = len(mapImage.vertices) * GLfloat.sizeof
+    let textureByteCount = len(TextureCoordinates) * GLfloat.sizeof
     bindBuffer(BufferTarget.ARRAY_BUFFER, VBO)
-    bufferData(BufferTarget.ARRAY_BUFFER, Vertices, BufferDataUsage.DYNAMIC_DRAW)
-    # Copy Element Indices to GPU Buffer
+    bufferData(BufferTarget.ARRAY_BUFFER, vertexByteCount + textureByteCount,
+               BufferDataUsage.DYNAMIC_DRAW)
+    bufferSubData(BufferTarget.ARRAY_BUFFER, 0, vertexByteCount, mapImage.vertices)
+    bufferSubData(BufferTarget.ARRAY_BUFFER, vertexByteCount, textureByteCount, TextureCoordinates)
+
+    # Setup EBO
     bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, EBO)
     bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, Indices, BufferDataUsage.DYNAMIC_DRAW)
+
     # Vertex (XYZ) vertexAttribPointer
     vertexAttribPointer(0, 3, VertexAttribType.FLOAT, false, 3 * float32.sizeof(), 0)
     enableVertexAttribArray(0)

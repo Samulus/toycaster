@@ -38,12 +38,12 @@ if mapArr.isNone:
 
 # Init renderers
 mapRender.init()
-wallRender.init()
-playerIcon.init(gameWindow.width(), gameWindow.height())
+#wallRender.init()
+#playerIcon.init(gameWindow.width(), gameWindow.height())
 
 # Generate 1D texture with wall heights
-var distances = distanceTexture.regenerateImage(gameWindow.width())
-wallRender.use(gameWindow.width(), gameWindow.height(), distances)
+var distances = distanceTexture.regenerateImage(gameWindow.width(), gameWindow.height())
+#wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
 # Generate minimap texture
 let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
@@ -77,9 +77,9 @@ while running:
         if event.get().window.event == WINDOWEVENT_RESIZED:
           let width = gameWindow.width()
           let height = gameWindow.height()
-          distances = distanceTexture.regenerateImage(gameWindow.width())
+          distances = distanceTexture.regenerateImage(gameWindow.width(), gameWindow.height())
           window.resize(width, height)
-          wallRender.use(width, height, distances)
+          #wallRender.use(width, height, distances)
 
       else:
         discard
@@ -91,8 +91,8 @@ while running:
   # Render Game
   window.clear()
   mapRender.use(minimapImage)
-  playerIcon.render()
   mapRender.render()
-  wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
-  wallRender.render()
+  #playerIcon.render()
+  #wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
+  #wallRender.render()
   window.swap(gameWindow)

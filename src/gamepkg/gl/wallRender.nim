@@ -56,7 +56,7 @@ proc init*(): void =
     Tex = genTexture()
     bindVertexArray(VAO)
 
-proc use*(screenHeight, screenWidth: uint, distances: GrayImage): void =
+proc use*(screenHeight, screenWidth: uint, distances: OpenGLImage): void =
     # Bind VAO
     bindVertexArray(VAO)
     # Copy Vertices to GPU Buffer
@@ -94,8 +94,8 @@ proc use*(screenHeight, screenWidth: uint, distances: GrayImage): void =
 
     # Upload to GPU
     texImage2D(TexImageTarget.TEXTURE_2D, 0.int32,
-               GL_RED.TextureInternalFormat, distances.width.int32, distances.height.int32,
-               PixelDataFormat.RED, PixelDataType.UNSIGNED_BYTE, distances.bytes)
+               distances.format, distances.width.int32, distances.height.int32,
+               distances.pixelFormat, distances.pixelType, distances.bytes)
 
 
 proc render*(): void =
