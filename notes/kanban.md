@@ -3,6 +3,7 @@
 # ⚡  Optimizations
 
 # ✏️  Refactor
+* Unify common image related code between minimapRender, playerIcon, wallRender
 
 # 🐞 Bugs
 * Map and playerIcon do not render correctly on Windows
@@ -16,7 +17,7 @@
 * Allow the player to wallk around in 2D space.
 
 # ⏲️  In Progress
-* Map and playerIcon do not render correctly on Windows
+> Unify common image related code between minimapRender, playerIcon, wallRender
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio

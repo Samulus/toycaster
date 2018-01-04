@@ -19,7 +19,7 @@ import gamepkg/map
 import gamepkg/minimap
 
 # OpenGL Modules
-import gamepkg/gl/mapRender
+import gamepkg/gl/minimapRender
 import gamepkg/gl/playerIcon
 import gamepkg/gl/wallRender
 import gamepkg/gl/distanceTexture
@@ -37,7 +37,7 @@ if mapArr.isNone:
   quit(QuitFailure)
 
 # Init renderers
-mapRender.init()
+minimapRender.init()
 #wallRender.init()
 #playerIcon.init(gameWindow.width(), gameWindow.height())
 
@@ -90,8 +90,8 @@ while running:
 
   # Render Game
   window.clear()
-  mapRender.use(minimapImage)
-  mapRender.render()
+  minimapRender.use(minimapImage)
+  minimapRender.render()
   #playerIcon.render()
   #wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
   #wallRender.render()
