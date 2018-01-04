@@ -7,6 +7,7 @@ import image
 import opengl
 import easygl
 import easygl.utils
+import glm
 
 let TextureCoordinates : seq[GLfloat]  =
   @[
@@ -26,6 +27,7 @@ const
     vertShaderPath = "./glsl/image.vert"
     PlayerIconPath = "./images/player.png"
     ImageUniformName = "image"
+    TransformationUniformName = "transform"
 
 let
     OutOfBoundsColor: seq[GLfloat] = @[0.0f, 0.89803f, 1.0f, 1.0f]
@@ -37,6 +39,9 @@ var
     Shader: ShaderProgramId
     Tex: TextureId
     PlayerImage: OpenGLImage
+    Transformation = mat4f(1)
+                    .scale(1.5,1.5,1.5)
+                    .translate(0,0,0)
 
 proc init*(screenWidth, screenHeight: uint): void =
     PlayerImage = fileToGLImage(PlayerIconPath, screenWidth, screenHeight)
@@ -74,6 +79,11 @@ proc init*(screenWidth, screenHeight: uint): void =
     let img = getUniformLocation(Shader, ImageUniformName)
     assert(img.int != -1, "Missing Uniform: " & $ImageUniformName)
     glUniform1i(img.GLint, 0.GLint)
+
+    # Upload Transformation Matrix
+    let transform = getUniformLocation(Shader, TransformationUniformName)
+    assert(transform.int != -1, "Missing Uniform: " & $ImageUniformName)
+    glUniformMatrix4fv(transform.GLint, 1, false, Transformation.caddr)
 
     # Setup Clamping / Filtering
     texParameteri(TextureTarget.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)

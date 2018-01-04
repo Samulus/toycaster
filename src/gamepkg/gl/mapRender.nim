@@ -10,6 +10,7 @@ import sdl2/sdl
 import opengl
 import easygl
 import easygl.utils
+import glm
 
 var TextureCoordinates : seq[GLfloat]  =
   @[
@@ -28,6 +29,7 @@ const
     fragShaderPath = "./glsl/image.frag"
     vertShaderPath = "./glsl/image.vert"
     ImageUniformName = "image"
+    TransformationUniformName = "transform"
 
 let
     OutOfBoundsColor: seq[GLfloat] = @[0.0f, 0.89803f, 1.0f, 1.0f]
@@ -38,6 +40,9 @@ var
     EBO: BufferId
     Shader: ShaderProgramId
     Tex: TextureId
+    Transformation = mat4f(1)
+                    .scale(2.5,2.5,2.5)
+                    .translate(0,0,0)
 
 proc init*(): void =
     Shader = createAndLinkProgram(vertShaderPath, fragShaderPath)
@@ -80,6 +85,11 @@ proc use*(mapImage: OpenGLImage): void =
     let minimap = getUniformLocation(Shader, ImageUniformName)
     assert(minimap.int != -1, "Missing Uniform: " & $ImageUniformName)
     glUniform1i(minimap.GLint, 0.GLint)
+
+    # Upload Transformation Matrix
+    let transform = getUniformLocation(Shader, TransformationUniformName)
+    assert(transform.int != -1, "Missing Uniform: " & $ImageUniformName)
+    glUniformMatrix4fv(transform.GLint, 1, false, Transformation.caddr)
 
     # Setup Clamping / Filtering
     texParameteri(TextureTarget.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)

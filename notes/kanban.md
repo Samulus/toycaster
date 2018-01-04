@@ -1,5 +1,7 @@
 # 📥 Todo
 
+# ⚡  Optimizations
+
 # ✏️  Refactor
 
 # 🐞 Bugs
@@ -19,3 +21,4 @@
 # ✔️  Done
 * Minimap should keep correct aspect ratio
 * DistanceTexture should use OpenGLImage
+* Minimap should be scalable to arbitrary size
