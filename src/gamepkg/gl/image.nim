@@ -48,8 +48,6 @@ type OpenGLImage* = ref object of RootObj
     width*: uint
     height*: uint
     vertices*: seq[GLfloat]
-    indices*: seq[GLuint]
-    textureCoordinates*: seq[GLfloat]
     bytes*: seq[uint8]
     components*: ComponentSize
     format*: TextureInternalFormat
@@ -62,12 +60,12 @@ method bindToTextureUnit*(this: OpenGLImage, tex: TextureId, index: uint): void 
 
 method copyVertexAttributesToGPU*(this: OpenGLImage, vbo: BufferId, ebo: BufferId): void {.base.} =
     let vertexByteCount = len(this.vertices) * GLfloat.sizeof
-    let textureByteCount = len(this.textureCoordinates) * GLfloat.sizeof
+    let textureByteCount = len(ImageTextureCoordinates) * GLfloat.sizeof
     # Copy Vertex + Texture coordinates into GPU
     bindBuffer(BufferTarget.ARRAY_BUFFER, vbo)
     bufferData(BufferTarget.ARRAY_BUFFER, vertexByteCount + textureByteCount, BufferDataUsage.DYNAMIC_DRAW)
     bufferSubData(BufferTarget.ARRAY_BUFFER, 0, vertexByteCount, this.vertices)
-    bufferSubData(BufferTarget.ARRAY_BUFFER, vertexByteCount, textureByteCount, this.textureCoordinates)
+    bufferSubData(BufferTarget.ARRAY_BUFFER, vertexByteCount, textureByteCount, ImageTextureCoordinates)
     # Indices (EBO)
     bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, ebo)
     bufferData(BufferTarget.ELEMENT_ARRAY_BUFFER, Indices, BufferDataUsage.DYNAMIC_DRAW)
@@ -78,11 +76,15 @@ method copyVertexAttributesToGPU*(this: OpenGLImage, vbo: BufferId, ebo: BufferI
     vertexAttribPointer(1, 2, VertexAttribType.FLOAT, false, 2 * GLfloat.sizeof(), 12 * GLfloat.sizeof())
     enableVertexAttribArray(1)
 
-method pairTextureWithSampler*(this: OpenGLImage, shader: ShaderProgramId, uniform: string): void {.base.} =
+method copyVertexAttributesToGPU*(this: OpenGLImage, vbo: BufferId, ebo: BufferId, vertices: seq[GLFloat]): void {.base.} =
+    this.vertices = vertices
+    this.copyVertexAttributesToGPU(vbo, ebo)
+
+method pairTextureWithSampler*(this: OpenGLImage, shader: ShaderProgramId, uniform: string, index: int): void {.base.} =
     shader.use()
     let uni = getUniformLocation(shader, uniform)
     assert(uni.int != -1, "Missing Uniform: " & uniform)
-    glUniform1i(uni.GLint, 0.GLint)
+    glUniform1i(uni.GLint, index.GLint)
 
 method setupParameters*(this: OpenGLImage): void {.base.} =
     # Setup Clamping / Filtering
@@ -114,8 +116,6 @@ proc fileToGLImage*(filepath: string, screenWidth, screenHeight: uint): OpenGLIm
         width: convertedImage.w.uint,
         height: convertedImage.h.uint,
         vertices: generateRectangleVertices(convertedImage.w.float / screenWidth.float, convertedImage.h.float / screenHeight.float),
-        indices: Indices,
-        textureCoordinates: ImageTextureCoordinates,
         bytes: newSeqWith(convertedImage.pitch * convertedImage.h, 0.uint8),
         components: ComponentsInImage,
         format: TextureInternalFormat.RGBA,
@@ -139,8 +139,6 @@ proc pixelsToGLImage*(components: ComponentSize, format: TextureInternalFormat, 
         width: widthPx,
         height: heightPx,
         vertices: generateRectangleVertices(widthPx.float / screenWidth.float, heightPx.float / screenHeight.float),
-        indices: Indices,
-        textureCoordinates: ImageTextureCoordinates,
         bytes: pixels,
         components: components,
         format: format,

@@ -48,7 +48,7 @@ proc use*(minimap: OpenGLImage): void =
     # Upload minimap
     minimap.bindToTextureUnit(Tex, 0)
     minimap.copyVertexAttributesToGPU(VBO, EBO)
-    minimap.pairTextureWithSampler(Shader, ImageUniformName)
+    minimap.pairTextureWithSampler(Shader, ImageUniformName, 0)
     minimap.setupParameters()
     minimap.uploadToGPU()
 
