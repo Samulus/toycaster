@@ -14,4 +14,4 @@ type
         Forward,
         Backward,
         Left,
-        RIght
+        Right

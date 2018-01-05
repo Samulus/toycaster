@@ -10,24 +10,24 @@ import options
 
 const
     WalkingSpeed: Meter = 1.4
-    UpAxis = vec3f(0, 1, 0)
+    FullRevolution = degToRad(360f)
+    RotationSpeed = degToRad(90f)
 
 type Player = ref object of RootObj
-    position: Vec3f
-    forward: Vec3f
-    rotation: Quatf
-    direction: Option[Direction]
-    theta: float
+    position*: Vec2f
+    snap*: Vec2f
+    velocity*: Vec2f
+    direction*: Option[Direction]
+    theta*: float
 
 proc ctor*(): Player =
-    result = Player();
-    result.position = vec3f(0, 0, 0)
-    result.forward = vec3f(0, 0, -1)
-    result.rotation = quatf(0,0,0,1)
-    result.theta = 0
-
-method position*(this: Player): Vec3f {.base.} =
-    this.position
+    return Player(
+        position: vec2f(0, 0),
+        snap: vec2f(0, 0),
+        velocity: vec2f(0, 1),
+        direction: none(Direction),
+        theta: degToRad(90f)
+    );
 
 method move*(this: Player, direction: Direction, pressed: bool): void {.base.} =
     if not pressed:
@@ -40,15 +40,28 @@ method update*(this: Player, dt: float): void {.base.} =
         return
     case this.direction.get():
         of Forward:
-            this.position.z += WalkingSpeed * dt
+            this.position.x -= WalkingSpeed * this.velocity.x * dt
+            this.position.y -= WalkingSpeed * this.velocity.y * dt
+            this.snap.x = floor(this.position.x)
+            this.snap.y = floor(this.position.y)
         of Backward:
-            this.position.z -= WalkingSpeed * dt
+            this.position.x += WalkingSpeed * this.velocity.x * dt
+            this.position.y += WalkingSpeed * this.velocity.y * dt
+            this.snap.x = floor(this.position.x)
+            this.snap.y = floor(this.position.y)
         of Left:
-            this.theta -= degToRad(1.0)
-            this.rotation = quatf(UpAxis, this.theta)
+            this.theta += degToRad(RotationSpeed) * 1 # dt
+            if this.theta > FullRevolution:
+                this.theta = 0
+            this.velocity.x = math.cos(this.theta)
+            this.velocity.y = math.sin(this.theta)
         of Right:
-            this.theta += degToRad(1.0)
-            this.rotation = quatf(UpAxis, this.theta)
-        else:
-            discard
+            if this.theta < 0:
+                this.theta = FullRevolution
+            this.theta -= degToRad(RotationSpeed) * 1 # dt
+            this.velocity.x = math.cos(this.theta)
+            this.velocity.y = math.sin(this.theta)
+
+    echo repr(this)
+    echo this.theta.radToDeg
     this.direction = none(Direction)

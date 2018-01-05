@@ -14,12 +14,11 @@
 * Player icon should move within minimap with respect to player location
 
 # 🔧 Mechanical
-* Allow the player to wallk around in 2D space.
 
 # ⏲️  In Progress
-* Allow the player to wallk around in 2D space.
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
 * DistanceTexture should use OpenGLImage
 * Minimap should be scalable to arbitrary size
+* Allow the player to wallk around in 2D space.
