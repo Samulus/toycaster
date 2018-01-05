@@ -16,6 +16,7 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
+* Modify wallRender to use methods in Image.nim
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
