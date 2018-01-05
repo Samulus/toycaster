@@ -16,10 +16,10 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
-* Modify wallRender to use methods in Image.nim
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
 * DistanceTexture should use OpenGLImage
 * Minimap should be scalable to arbitrary size
 * Allow the player to wallk around in 2D space.
+* Modify wallRender to use methods in Image.nim
