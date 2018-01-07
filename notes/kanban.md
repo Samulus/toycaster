@@ -1,5 +1,9 @@
 # 📥 Todo
 
+# 🔬 Testing
+* Add test for finding horizontal intersection points
+* Add test for mapCoordinate -> cartesian  (and inverse)
+
 # ⚡  Optimizations
 
 # ✏️  Refactor
@@ -7,6 +11,7 @@
 
 # 🐞 Bugs
 * Map and playerIcon do not render correctly on Windows
+* Make the separation between map coordinates and player cartesian coordinates more clear
 
 # 🖼️  Graphics
 * Scale Player icon so that it fits within a single map cell
@@ -16,6 +21,7 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
+* Implement the raycasting algorithm
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio

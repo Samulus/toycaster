@@ -41,15 +41,17 @@ minimapRender.init()
 wallRender.init()
 #playerIcon.init(gameWindow.width(), gameWindow.height())
 
+# Create player
+let p = player.ctor(mapArr.get());
+
 # Generate 1D texture with wall heights
-var distances = distanceTexture.regenerateImage(gameWindow.width(), gameWindow.height())
+var distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
 wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
 # Generate minimap texture
 let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
 
 # Create game entities && start main loop
-let p = player.ctor();
 var running = true;
 
 while running:
@@ -77,7 +79,7 @@ while running:
         if event.get().window.event == WINDOWEVENT_RESIZED:
           let width = gameWindow.width()
           let height = gameWindow.height()
-          distances = distanceTexture.regenerateImage(gameWindow.width(), gameWindow.height())
+          distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
           window.resize(width, height)
 
       else:
