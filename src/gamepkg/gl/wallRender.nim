@@ -53,7 +53,6 @@ proc init*(): void =
 proc use*(screenHeight, screenWidth: uint, distances: OpenGLImage): void =
     bindVertexArray(VAO)
 
-    # TODO: Add method to allow copying custom vertices into image
     distances.bindToTextureUnit(Tex, 1)
     distances.copyVertexAttributesToGPU(VBO, EBO, Vertices)
     distances.pairTextureWithSampler(Shader, WallDataName, 1)
@@ -61,10 +60,10 @@ proc use*(screenHeight, screenWidth: uint, distances: OpenGLImage): void =
     distances.uploadToGPU()
 
     # Upload `iResolution` vec2 uniform
-    Shader.use()
-    let iResolution = getUniformLocation(Shader, iResolutionName)
-    assert(iResolution.int != -1, "Missing Uniform: " & $iResolutionName)
-    glUniform2ui(iResolution.GLint, screenWidth.GLuint, screenHeight.GLuint)
+    #Shader.use()
+    #let iResolution = getUniformLocation(Shader, iResolutionName)
+    #assert(iResolution.int != -1, "Missing Uniform: " & $iResolutionName)
+    #glUniform2ui(iResolution.GLint, screenWidth.GLuint, screenHeight.GLuint)
 
 proc render*(): void =
     Shader.use()
