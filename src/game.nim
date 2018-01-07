@@ -31,7 +31,7 @@ if not createGameWindow(gameWindow):
   quit(QuitFailure)
 
 # Load map from disk into memory
-let mapArr = mapToArray("levels/001.txt")
+let mapArr = fileToWorldMap("levels/001.txt")
 if mapArr.isNone:
   sdl.logCritical(LOG_CATEGORY_APPLICATION, "Unable to open %s", "levels/001.txt")
   quit(QuitFailure)

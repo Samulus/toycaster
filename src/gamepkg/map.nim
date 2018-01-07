@@ -13,15 +13,14 @@ import options
 
 type
     TileType* = enum
-        Empty = 0.uint8,
-        Wall = 1.uint8,
-        Player = 2.uint8,
+        Empty = 0
+        Wall = 1
+        Player = 2
 
 type
     LevelMap* = seq[seq[TileType]]
 
-
-proc isValidNumber(value: char, tile: var TileType): bool =
+proc assignTileTypeToNumber(value: char, tile: var TileType): bool =
     result = false
     let n = parseInt($value)
     result = n == 0 or n == 1 or n == 2
@@ -33,19 +32,32 @@ proc isValidNumber(value: char, tile: var TileType): bool =
     elif n == 2:
         tile = Player
 
-proc mapToArray*(filePath: string): Option[LevelMap] =
+proc stringToWorldMap*(data: string): LevelMap =
+    result = newSeq[seq[TileType]]()
+    var i = 0
+    for line in data.splitLines():
+        result.add(newSeq[TileType]())
+        for ch in line:
+            var tile: TileType
+            assert(ch.assignTileTypeToNumber(tile), "Invalid Char: " & $ch)
+            result[i].add(tile)
+        i = i + 1
+
+proc fileToWorldMap*(filePath: string): Option[LevelMap] =
     var file: File
     if not open(file, filePath, FileMode.fmRead):
         return none(LevelMap)
 
     var matrix = newSeq[seq[TileType]]()
     var line: string
+    var i = 0
 
     while file.readLine(line):
         matrix.add(newSeq[TileType]())
-        for character in line:
+        for ch in line:
             var tile: TileType
-            if character.isValidNumber(tile):
-                matrix[matrix.len - 1].add(tile)
+            assert(ch.assignTileTypeToNumber(tile), "Invalid Char: " & $ch)
+            matrix[i].add(tile)
+        i = i + 1
 
     return some(matrix)
