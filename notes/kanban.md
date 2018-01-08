@@ -3,6 +3,7 @@
 # 🔬 Testing
 * Add test for finding horizontal intersection points
 * Add test for mapCoordinate -> cartesian  (and inverse)
+* Add test for correct player movement
 
 # ⚡  Optimizations
 
