@@ -57,7 +57,7 @@ const
 var DistanceTexture: OpenGLImage
 
 # Implementation of: http://www.permadi.com/tutorial/raycast/rayc7.html
-proc raycast(p: Player, mapArr: LevelMap, width: uint, heights: var seq[uint8]): void =
+proc raycast(p: player.Player, mapArr: LevelMap, width: uint, heights: var seq[uint8]): void =
 
    var theta: float = p.theta + (Fov / 2)
    let 
@@ -117,7 +117,7 @@ proc raycast(p: Player, mapArr: LevelMap, width: uint, heights: var seq[uint8]):
         
        #theta += angleBetweenRays
 
-proc regenerateImage*(p: Player, mapArr: LevelMap, screenWidth, screenHeight: uint): var OpenGLImage =
+proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHeight: uint): var OpenGLImage =
    let
       widthPx = min(screenWidth, MaximumScreenWidth)
       heightPx = uint(1)
