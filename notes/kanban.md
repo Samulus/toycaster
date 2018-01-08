@@ -23,6 +23,7 @@
 
 # ⏲️  In Progress
 * Implement the raycasting algorithm
+> Make the separation between map coordinates and player cartesian coordinates more clear
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
