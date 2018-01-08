@@ -7,49 +7,82 @@ import glm
 import math
 import unittest
 import sequtils
+import options
 import ../src/gamepkg/gl/distanceTexture
 import ../src/gamepkg/player
 import ../src/gamepkg/map
+import ../src/gamepkg/units
+
+const
+    MaximumDifference = 0.0001
 
 suite "Player Spawning / Movement / Rotation":
-    test "Player Spawns in Middle of Cells":
+    setup:
         let
-            mapData = @["102\n000\n101",
-                        "101\n020\n101",
-                        "101\n000\n121"]
-            spawns = @[vec2f(2.5, 0.5),
-                       vec2f(1.5, 1.5),
-                       vec2f(1.5, 2.5)]
-        var
-            index = 0
-        require (len(mapData) == len(spawns))
-        while index < len(mapData):
-            let
-                map = mapData[index].stringToWorldMap()
-                playerObj = player.ctor(map)
-            check(playerObj.position == spawns[index])
-            index = index + 1
+            mapData = "101\n020\n101"
+            playerObj = player.ctor(mapData.stringToWorldMap())
 
-    test "Player is facing north by default (theta = pi/2)":
-        discard
+    test "Spawn in center of map cell":
+        check(playerObj.position == vec2f(1.5, 1.5))
 
-    test "Player enters WEST cell when rotating left and moving for 1 second":
-        discard
+    test "Face North by default (theta = 90 degrees)":
+        require(abs(playerObj.theta - (math.Pi / 2)) < MaximumDifference)
+        require(abs(playerObj.velocity.x - 0f) < MaximumDifference)
+        require(abs(playerObj.velocity.y - 1.0f) < MaximumDifference)
 
-    test "Player enters EAST cell when rotating and moving for 1 second":
-        discard
+    test "Theta increases / velocity changes, when player looks to the left":
+        let
+            deltaTime = 1.0  # One full second has elapsed
+            prevTheta = playerObj.theta # Record original angle of player
+            expectedTheta = 180.0f.degToRad() # aka Π
+        playerObj.move(Direction.Left, true)
+        playerObj.update(deltaTime, rotateSpeed = 90.0f.degToRad()) # Face completely west
 
-    test "Player enters NORTH cell when rotating and moving for 1 second":
-        discard
+        require(playerObj.theta > prevTheta) # Theta should increase
+        require(abs(playerObj.theta - expectedTheta) < MaximumDifference) # Theta should be Π
 
-    test "Player enters SOUTH cell when rotating and moving for 1 second":
-        discard
+        # When facing completely West:
+        require(playerObj.velocity.x < 0) # X velocity should be negative 1
+        require(abs(playerObj.velocity.x + 1) < MaximumDifference) # (-1 + 1) < MaximumDifference if X velocity is -1
+        require(abs(playerObj.velocity.y) < MaximumDifference) # Y velocity should be 0
+
+    test "Theta decreases / velocity changes, when player looks to the right":
+        let
+            deltaTime = 1.0  # One full second has elapsed
+            prevTheta = playerObj.theta # Record original angle of player
+            expectedTheta = 0
+        playerObj.move(Direction.Right, true)
+        playerObj.update(deltaTime, rotateSpeed = 90.0f.degToRad()) # Face completely East
+
+        require(playerObj.theta < prevTheta) # Theta should decrease
+        require(abs(playerObj.theta) < MaximumDifference) # Theta should be 0
+
+        # When facing completely East:
+        require(playerObj.velocity.x > 0) # X velocity should be positive 1
+        require(abs(playerObj.velocity.x - 1) < MaximumDifference) # (+1 - 1) < MaximumDifference if X velocity is +1
+        require(abs(playerObj.velocity.y) < MaximumDifference) # Y Velocity should be 0
+
+    test "Player enters cell(0.5, 1.5f) after rotating +90 deg and moving 1 meter":
+        let
+            deltaTime = 1.0 # Seconds
+            prevTheta = playerObj.theta
+            rotateSpeed = 90.0f.degToRad()
+            walkSpeed = 1.0f # Meters / second
+            expectedX = 0.5f # Expected x position after movement
+            expectedY = 1.5f # Expected y position after movement
+
+        # Rotate completely to the left and walk into the next cell
+        playerObj.move(Direction.Left, true)
+        playerObj.update(deltaTime, rotateSpeed = rotateSpeed)
+        playerObj.move(Direction.Forward, true)
+        playerObj.update(deltaTime, walkSpeed = walkSpeed)
+        require(playerObj.position.x - expectedX < MaximumDifference)
+        require(playerObj.position.y - expectedY < MaximumDifference)
 
 suite "Raycasting Algorithm":
     setup:
         let mapData =  "101\n020\n101".stringToWorldMap()
         let playerObj = player.ctor(mapData)
-        playerObj.cell = vec2f(2, 1)
         playerObj.position = vec2f(1.5, 2.5)
 
     test "Convert Player Map Cell Coordinate to Normalized Cartesian":
