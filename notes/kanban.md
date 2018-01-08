@@ -1,9 +1,7 @@
 # 📥 Todo
 
 # 🔬 Testing
-* Add test for finding horizontal intersection points
 * Add test for mapCoordinate -> cartesian  (and inverse)
-* Add test for correct player movement
 
 # ⚡  Optimizations
 
@@ -23,8 +21,9 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
+> Add test for finding horizontal intersection points
 * Implement the raycasting algorithm
-> Make the separation between map coordinates and player cartesian coordinates more clear
+* Make the separation between map coordinates and player cartesian coordinates more clear
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
@@ -32,3 +31,4 @@
 * Minimap should be scalable to arbitrary size
 * Allow the player to wallk around in 2D space.
 * Modify wallRender to use methods in Image.nim
+* Add test for correct player movement
