@@ -12,7 +12,7 @@ import ../src/gamepkg/player
 import ../src/gamepkg/map
 
 suite "Player Spawning / Movement / Rotation":
-    setup:
+    test "Player Spawns in Middle of Cells":
         let
             mapData = @["102\n000\n101",
                         "101\n020\n101",
@@ -22,8 +22,6 @@ suite "Player Spawning / Movement / Rotation":
                        vec2f(1.5, 2.5)]
         var
             index = 0
-
-    test "Player Spawns in Middle of Cells":
         require (len(mapData) == len(spawns))
         while index < len(mapData):
             let
@@ -32,12 +30,30 @@ suite "Player Spawning / Movement / Rotation":
             check(playerObj.position == spawns[index])
             index = index + 1
 
+    test "Player is facing north by default (theta = pi/2)":
+        discard
+
+    test "Player enters WEST cell when rotating left and moving for 1 second":
+        discard
+
+    test "Player enters EAST cell when rotating and moving for 1 second":
+        discard
+
+    test "Player enters NORTH cell when rotating and moving for 1 second":
+        discard
+
+    test "Player enters SOUTH cell when rotating and moving for 1 second":
+        discard
+
 suite "Raycasting Algorithm":
     setup:
         let mapData =  "101\n020\n101".stringToWorldMap()
         let playerObj = player.ctor(mapData)
         playerObj.cell = vec2f(2, 1)
         playerObj.position = vec2f(1.5, 2.5)
+
+    test "Convert Player Map Cell Coordinate to Normalized Cartesian":
+        discard
 
     test "Horizontal Intersection Test [Facing: Up]":
         playerObj.theta = 120.0f.degToRad()
