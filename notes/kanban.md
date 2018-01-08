@@ -8,6 +8,7 @@
 
 # ✏️  Refactor
 * Unify common image related code between playerIcon, wallRender
+* Remove trailing whitespace from misc files
 
 # 🐞 Bugs
 * Map and playerIcon do not render correctly on Windows
