@@ -2,10 +2,10 @@
 # player.nim
 # Author: Samuel Vargas
 #
-
-#
-# TODO: Convert cartesian to coordinate
-#
+# Notes:
+#   Player.position.x is the COLUMN the player is in.
+#   Player.position.y is the ROW the player is in.
+#   The coordinate system is row-major (not cartesian)
 
 import glm
 import math
@@ -26,27 +26,24 @@ type Player* = ref object of RootObj
     theta*: float
 
 proc ctor*(mapArr: LevelMap): Player =
-    var 
+    var
        spawnX = -1
        spawnY = -1
 
-    for x in countup(0, len(mapArr) - 1, 1):
-        for y in countup(0, len(mapArr[x]) - 1, 1):
-            if mapArr[x][y] == TileType.Player:
+    for y in countup(0, len(mapArr) - 1, 1):
+        for x in countup(0, len(mapArr[y]) - 1, 1):
+            if mapArr[y][x] == TileType.Player:
                 spawnX = x
                 spawnY = y
-    
+
     assert(spawnX != -1 and spawnY != -1, "Missing Player Spawn")
 
     result =  Player(
         position: vec2f(spawnX.float + 0.5, spawnY.float + 0.5),
-        cell: vec2f(0, 0),
-        velocity: vec2f(0, 1),
+        velocity: vec2f(1, 0),
         direction: none(Direction),
         theta: degToRad(90f)
     )
-
-    #echo repr(result)
 
 method move*(this: Player, direction: Direction, pressed: bool): void {.base.} =
     if not pressed:
@@ -61,13 +58,9 @@ method update*(this: Player, dt: float): void {.base.} =
         of Forward:
             this.position.x -= WalkingSpeed * this.velocity.x * dt
             this.position.y -= WalkingSpeed * this.velocity.y * dt
-            this.cell.x = floor(this.position.y)
-            this.cell.y = floor(this.position.x)
         of Backward:
             this.position.x += WalkingSpeed * this.velocity.x * dt
             this.position.y += WalkingSpeed * this.velocity.y * dt
-            this.cell.x = floor(this.position.y)
-            this.cell.y = floor(this.position.x)
         of Left:
             this.theta += degToRad(RotationSpeed) * 1 # dt
             if this.theta > FullRevolution:
