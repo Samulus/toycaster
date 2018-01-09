@@ -16,11 +16,11 @@ import map
 const
     WalkingSpeed: Meter = 1.4
     FullRevolution = degToRad(360f)
-    RotationSpeed = degToRad(90f)
+    RotationSpeed* = degToRad(1f)
+    DefaultTheta* = degToRad(90f)
 
 type Player* = ref object of RootObj
     position*: Vec2f
-    cell*: Vec2f
     velocity*: Vec2f
     direction*: Option[Direction]
     theta*: float
@@ -38,11 +38,11 @@ proc ctor*(mapArr: LevelMap): Player =
 
     assert(spawnX != -1 and spawnY != -1, "Missing Player Spawn")
 
-    result =  Player(
+    return Player(
         position: vec2f(spawnX.float + 0.5, spawnY.float + 0.5),
-        velocity: vec2f(1, 0),
+        velocity: vec2f(cos(DefaultTheta), sin(DefaultTheta)),
         direction: none(Direction),
-        theta: degToRad(90f)
+        theta: DefaultTheta
     )
 
 method move*(this: Player, direction: Direction, pressed: bool): void {.base.} =
@@ -51,18 +51,18 @@ method move*(this: Player, direction: Direction, pressed: bool): void {.base.} =
     else:
         this.direction = some(direction)
 
-method update*(this: Player, dt: float): void {.base.} =
+method update*(this: Player, dt: float, walkSpeed = WalkingSpeed, rotateSpeed = RotationSpeed): void {.base.} =
     if this.direction.isNone:
         return
     case this.direction.get():
         of Forward:
-            this.position.x -= WalkingSpeed * this.velocity.x * dt
-            this.position.y -= WalkingSpeed * this.velocity.y * dt
+            this.position.x += walkSpeed * this.velocity.x * dt
+            this.position.y += walkSpeed * this.velocity.y * dt
         of Backward:
-            this.position.x += WalkingSpeed * this.velocity.x * dt
-            this.position.y += WalkingSpeed * this.velocity.y * dt
+            this.position.x -= walkSpeed * this.velocity.x * dt
+            this.position.y += walkSpeed * this.velocity.y * dt
         of Left:
-            this.theta += degToRad(RotationSpeed) * 1 # dt
+            this.theta += rotateSpeed * dt
             if this.theta > FullRevolution:
                 this.theta = 0
             this.velocity.x = math.cos(this.theta)
@@ -70,9 +70,8 @@ method update*(this: Player, dt: float): void {.base.} =
         of Right:
             if this.theta < 0:
                 this.theta = FullRevolution
-            this.theta -= degToRad(RotationSpeed) * 1 # dt
+            this.theta -= rotateSpeed * dt
             this.velocity.x = math.cos(this.theta)
             this.velocity.y = math.sin(this.theta)
 
-    echo repr(this)
     this.direction = none(Direction)

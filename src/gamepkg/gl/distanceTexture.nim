@@ -34,6 +34,15 @@ proc getQuadrant*(theta: float): Quadrant =
     else:
         return Quadrant.IV
 
+proc getNormalizedCartesianLocation*(point: Vec2f): Vec2f =
+    proc scale(x, inMin, inMax, outMin, outMax: float): float =
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
+    let
+        x = point.x.splitDecimal().floatpart.scale(0, 0.99999999, -1, 1)
+        y = point.x.splitDecimal().floatpart.scale(0, 0.99999999,  1, -1)
+
+    return vec2f(x, y)
+
 proc getHorizontalIntersection(origin: Vec2f, theta: float): void =
     # TODO: If theta == 90* or 270* we can skip all this math and just
     # use the formual let intersect = (origin.x, floor(origin.y)) to get the 

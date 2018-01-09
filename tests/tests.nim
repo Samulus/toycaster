@@ -83,10 +83,22 @@ suite "Raycasting Algorithm":
     setup:
         let mapData =  "101\n020\n101".stringToWorldMap()
         let playerObj = player.ctor(mapData)
-        playerObj.position = vec2f(1.5, 2.5)
 
-    test "Convert Player Map Cell Coordinate to Normalized Cartesian":
-        discard
+    test "getNormalizedCartesianLocation() returns correct values":
+        let a = getNormalizedCartesianLocation(vec2f(1.5, 0.5)) # Expected (0, 0)
+        require(abs(a.x) < MaximumDifference)
+        require(abs(a.y) < MaximumDifference)
+        let b = getNormalizedCartesianLocation(vec2f(0.0, 0.0)) # Expected: (-1, 1)
+        require(b.x < 0)
+        require(b.y > 0)
+        require(abs(b.x) - 1.0f < MaximumDifference)
+        require(abs(b.y) - 1.0f < MaximumDifference)
+        let c = getNormalizedCartesianLocation(vec2f(128.9, 666.9)) # Expected: (0.9, -0.9)
+        require(c.x > 0)
+        require(c.y < 0)
+        require(abs(c.x) - 0.9f < MaximumDifference)
+        require(abs(c.y) - 0.9f < MaximumDifference)
+
 
     test "Horizontal Intersection Test [Facing: Up]":
         playerObj.theta = 120.0f.degToRad()
