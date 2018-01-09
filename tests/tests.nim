@@ -9,6 +9,7 @@ import unittest
 import sequtils
 import options
 import ../src/gamepkg/gl/distanceTexture
+import ../src/gamepkg/raycast
 import ../src/gamepkg/player
 import ../src/gamepkg/map
 import ../src/gamepkg/units
@@ -167,3 +168,30 @@ suite "Raycasting: Vertical Intersections":
         require(abs(intersect.x - (2f + MaximumDifference)) < MaximumDifference)
         require(intersect.y > 0)
         require(intersect.y > LargeKnownValue)
+
+suite "Raycasting: Horizontal Raycasting Finds Walls":
+
+    # Map looks like:
+    #    |W|W|W|   W=Wall
+    #    |0|0|0|   P=Player
+    #    |W|P|W|   0=No Wall
+
+    setup:
+        let mapData =  "111\n000\n121".stringToWorldMap()
+        let playerObj = player.ctor(mapData)
+
+    test "Spawn in center of map cell (1.5, 2.5f)":
+        check(playerObj.position == vec2f(1.5, 2.5))
+
+    test "Map cell (1, 0) is closest horizontal boundary with distance d=2.5m":
+        let
+            firstHorizontalPoint = getHorizontalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+            firstHorizontalWall = horizontalRaycast(playerObj.position, firstHorizontalPoint, playerObj.theta, mapData, AlmostZero)
+            expectedDistance = 2.549509f
+
+        checkpoint("firstHorizontalPoint should be (1.5, 1.999...) ")
+        require(abs(firstHorizontalPoint.x - 1.5) < MaximumDifference)
+        require(abs(2.0f - (firstHorizontalPoint.y + MaximumDifference)) < MaximumDifference)
+
+        checkpoint("firstHorizontalWall should be ~2.5 meters infront of us")
+        require(abs(expectedDistance - firstHorizontalWall) < MaximumDifference)
