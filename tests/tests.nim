@@ -15,6 +15,14 @@ import ../src/gamepkg/units
 
 const
     MaximumDifference = 0.0001
+    AlmostZero = MaximumDifference
+    OneSecondDeltaTime = 1.0f
+    # If theta is at an extreme angle and a collision is
+    # never going to be made the getIntersection functions
+    # will return a value smaller or larger than these
+    # arbitrarily chosen values respectively
+    SmallKnownValue = -10_000.0f
+    LargeKnownValue = -1 * SmallKnownValue
 
 suite "Player Spawning / Movement / Rotation":
     setup:
@@ -32,11 +40,10 @@ suite "Player Spawning / Movement / Rotation":
 
     test "Theta increases / velocity changes, when player looks to the left":
         let
-            deltaTime = 1.0  # One full second has elapsed
             prevTheta = playerObj.theta # Record original angle of player
             expectedTheta = 180.0f.degToRad() # aka Π
         playerObj.move(Direction.Left, true)
-        playerObj.update(deltaTime, rotateSpeed = 90.0f.degToRad()) # Face completely west
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 90.0f.degToRad()) # Face completely west
 
         require(playerObj.theta > prevTheta) # Theta should increase
         require(abs(playerObj.theta - expectedTheta) < MaximumDifference) # Theta should be Π
@@ -48,11 +55,10 @@ suite "Player Spawning / Movement / Rotation":
 
     test "Theta decreases / velocity changes, when player looks to the right":
         let
-            deltaTime = 1.0  # One full second has elapsed
             prevTheta = playerObj.theta # Record original angle of player
             expectedTheta = 0
         playerObj.move(Direction.Right, true)
-        playerObj.update(deltaTime, rotateSpeed = 90.0f.degToRad()) # Face completely East
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 90.0f.degToRad()) # Face completely East
 
         require(playerObj.theta < prevTheta) # Theta should decrease
         require(abs(playerObj.theta) < MaximumDifference) # Theta should be 0
@@ -64,7 +70,6 @@ suite "Player Spawning / Movement / Rotation":
 
     test "Player enters cell(0.5, 1.5f) after rotating +90 deg and moving 1 meter":
         let
-            deltaTime = 1.0 # Seconds
             prevTheta = playerObj.theta
             rotateSpeed = 90.0f.degToRad()
             walkSpeed = 1.0f # Meters / second
@@ -73,34 +78,92 @@ suite "Player Spawning / Movement / Rotation":
 
         # Rotate completely to the left and walk into the next cell
         playerObj.move(Direction.Left, true)
-        playerObj.update(deltaTime, rotateSpeed = rotateSpeed)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = rotateSpeed)
         playerObj.move(Direction.Forward, true)
-        playerObj.update(deltaTime, walkSpeed = walkSpeed)
+        playerObj.update(OneSecondDeltaTime, walkSpeed = walkSpeed)
         require(playerObj.position.x - expectedX < MaximumDifference)
         require(playerObj.position.y - expectedY < MaximumDifference)
 
-suite "Raycasting Algorithm":
+suite "Raycasting: Horizontal Intersections":
     setup:
         let mapData =  "101\n020\n101".stringToWorldMap()
         let playerObj = player.ctor(mapData)
 
-    test "getNormalizedCartesianLocation() returns correct values":
-        let a = getNormalizedCartesianLocation(vec2f(1.5, 0.5)) # Expected (0, 0)
-        require(abs(a.x) < MaximumDifference)
-        require(abs(a.y) < MaximumDifference)
-        let b = getNormalizedCartesianLocation(vec2f(0.0, 0.0)) # Expected: (-1, 1)
-        require(b.x < 0)
-        require(b.y > 0)
-        require(abs(b.x) - 1.0f < MaximumDifference)
-        require(abs(b.y) - 1.0f < MaximumDifference)
-        let c = getNormalizedCartesianLocation(vec2f(128.9, 666.9)) # Expected: (0.9, -0.9)
-        require(c.x > 0)
-        require(c.y < 0)
-        require(abs(c.x) - 0.9f < MaximumDifference)
-        require(abs(c.y) - 0.9f < MaximumDifference)
+    test "Horizontal Intersection is (1.5, 0.9999..) when centered / facing North":
+        let intersect = getHorizontalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        checkpoint("Intersect should be (1.5, 0.9999...)")
+        require(abs(intersect.x - playerObj.position.x) < MaximumDifference)
+        require(1 - (intersect.y + AlmostZero) < MaximumDifference) # (1 - (0.999 + 0.0001)) < 0.0001
 
+    test "Horizontal Intersection is (1.5, 2.0001) when centered / facing South":
+        checkpoint("Rotate player to face south")
+        playerObj.move(Direction.Left, true)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 180.0f.degToRad())
 
-    test "Horizontal Intersection Test [Facing: Up]":
-        playerObj.theta = 120.0f.degToRad()
-        let quadrant = playerObj.theta.getQuadrant()
-        require(quadrant == Quadrant.II)
+        checkpoint("Intersect should be (1.5, 2.0001...)")
+        let intersect = getHorizontalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(abs(1.5f - intersect.x) < MaximumDifference)
+        require(abs(2.0f + AlmostZero - intersect.y) < MaximumDifference)
+
+    test "Horizontal Intersection is (smallValue, 0) when facing completely left":
+        let smallKnownValue = -10_000.0f
+
+        checkpoint("Rotating 90 degrees to the left")
+        playerObj.move(Direction.Left, true)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 90.0f.degToRad())
+
+        checkpoint("Intersect should be (-verySmallValue, 2.0001...)")
+        let intersect = getHorizontalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(intersect.x < smallKnownValue)
+        require(abs(2.0f + AlmostZero - intersect.y) < MaximumDifference)
+
+    test "Horizontal Intersection is (largeValue, 0) when facing centered / completely right":
+        let largeValue = 10_000.0f
+
+        checkpoint("Rotating 90 degrees to the right")
+        playerObj.move(Direction.Right, true)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 90.0f.degToRad())
+
+        checkpoint("Intersect should be (LargeValue, 2.0001...)")
+        let intersect = getHorizontalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(intersect.x > largeValue)
+        require(abs(2.0f + AlmostZero - intersect.y) < MaximumDifference)
+
+suite "Raycasting: Vertical Intersections":
+
+    setup:
+        let mapData =  "101\n020\n101".stringToWorldMap()
+        let playerObj = player.ctor(mapData)
+
+    test "Vertical Intersection is (2.0001..., 1.5) when facing completely East":
+        checkpoint("Rotating 90 degrees to the right")
+        playerObj.move(Direction.Right, true)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 90.0f.degToRad())
+        let intersect = getVerticalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(abs(intersect.x - (2f + MaximumDifference)) < MaximumDifference)
+        require(abs(intersect.y - 1.5f) < MaximumDifference)
+
+    test "Vertical Intersection is (0.999..., 1.5) when facing completely West":
+        checkpoint("Rotating 90 degrees to the left")
+        playerObj.move(Direction.Left, true)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 90.0f.degToRad())
+        let intersect = getVerticalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(abs(1 - (intersect.x + MaximumDifference)) < MaximumDifference) # (1 - (0.999+ 0.001)) should be ~= 0
+        require(abs(1.5f - intersect.y) < MaximumDifference)
+
+    # TODO: Figure out why largeValues are when facing north and not small values
+    test "Vertical Intersection is (1.5, largeValue) when facing completely North":
+        let intersect = getVerticalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(abs(1 - (intersect.x + MaximumDifference)) < MaximumDifference)
+        require(intersect.y > 0)
+        require(intersect.y > LargeKnownValue)
+
+    # TODO: Figure out why smallValues are when facing south and not largeValues
+    test "Vertical Intersection is (1.5, largeValue) when facing completely South":
+        checkpoint("Rotating 180 degrees to the south")
+        playerObj.move(Direction.Left, true)
+        playerObj.update(OneSecondDeltaTime, rotateSpeed = 180.0f.degToRad())
+        let intersect = getVerticalIntersection(playerObj.position, playerObj.theta, AlmostZero)
+        require(abs(intersect.x - (2f + MaximumDifference)) < MaximumDifference)
+        require(intersect.y > 0)
+        require(intersect.y > LargeKnownValue)

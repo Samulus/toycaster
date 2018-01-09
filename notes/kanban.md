@@ -7,6 +7,7 @@
 # ✏️  Refactor
 * Unify common image related code between playerIcon, wallRender
 * Remove trailing whitespace from misc files
+* Split distanceTexture.nim into raycast.nim + distanceTexture.nim
 
 # 🐞 Bugs
 * Map and playerIcon do not render correctly on Windows
@@ -20,6 +21,7 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
+> Continue on simplifying getHorizontalIntersection()
 > Add test for finding horizontal intersection points
 * Implement the raycasting algorithm
 

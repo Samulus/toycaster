@@ -17,6 +17,20 @@ import math
 import ../player
 import ../map
 
+const
+    MaximumDifference = 0.0001
+    AlmostOne = 0.99999999
+    AlmostZero = 0.0001f
+    MaximumScreenWidth = 4096 #  4k resolution support for now
+    TextureFormat = GL_RED.TextureInternalFormat
+    PixelFormat = PixelDataFormat.RED
+    PixelType = PixelDataType.UNSIGNED_BYTE
+    GridSize = 64
+    Fov = 60.0.degToRad
+
+var
+    DistanceTexture: OpenGLImage
+
 type
     Quadrant* = enum
         I,
@@ -34,36 +48,48 @@ proc getQuadrant*(theta: float): Quadrant =
     else:
         return Quadrant.IV
 
-proc getNormalizedCartesianLocation*(point: Vec2f): Vec2f =
-    proc scale(x, inMin, inMax, outMin, outMax: float): float =
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
-    let
-        x = point.x.splitDecimal().floatpart.scale(0, 0.99999999, -1, 1)
-        y = point.x.splitDecimal().floatpart.scale(0, 0.99999999,  1, -1)
+proc getHorizontalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZero): Vec2f =
+    assert(theta > -MaximumDifference, "Theta must be non-negative")
+    # Prevent divsion by 0
+    var safeTheta = theta
+    if safeTheta == 0:
+        safeTheta = almostZero
 
-    return vec2f(x, y)
+    var A = vec2f(0, 0)
+    case safeTheta.getQuadrant():
+        of I, II:
+            A.y = floor(origin.y) - almostZero
+        of III, IV:
+            A.y = floor(origin.y) + 1 + almostZero
 
-proc getHorizontalIntersection(origin: Vec2f, theta: float): void =
-    # TODO: If theta == 90* or 270* we can skip all this math and just
-    # use the formual let intersect = (origin.x, floor(origin.y)) to get the 
-    # intersection point
+    A.x = origin.x + (origin.y - A.y) / tan(safeTheta)
+    return A
 
-    let quadrant = theta.getQuadrant()
-    if quadrant == Quadrant.II:
-        let adjacentSide = origin.y.splitDecimal().floatpart.abs()
-        let hypotenuse = adjacentSide / cos(theta)
+proc getVerticalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZero): Vec2f =
+    assert(theta > -MaximumDifference, "Theta must be non-negative")
+    # Prevent divsion by 0
+    var safeTheta = theta
+    if safeTheta == 0:
+        safeTheta = almostZero
 
+    var B = vec2f(0, 0)
+    case safeTheta.getQuadrant():
+        of I, IV:
+            B.x = floor(origin.x) + 1 + almostZero
+        of II, III:
+            B.x = floor(origin.x) - almostZero
+
+    B.y = origin.y + (origin.x - B.x) * tan(safeTheta)
+    return B
+
+proc horizontalRaycast*(origin: Vec2f, xGap, yGap: float, mapArr: LevelMap): Vec2f =
     discard
 
-const
-    MaximumScreenWidth = 4096 #  4k resolution support for now
-    TextureFormat = GL_RED.TextureInternalFormat
-    PixelFormat = PixelDataFormat.RED
-    PixelType = PixelDataType.UNSIGNED_BYTE
-    GridSize = 64
-    Fov = 60.0.degToRad
+proc verticalRaycast*(origin: Vec2f, xGap, yGap: float, mapArr: LevelMap): Vec2f =
+    discard
 
-var DistanceTexture: OpenGLImage
+proc heightOfWall*(): void =
+    discard
 
 # Implementation of: http://www.permadi.com/tutorial/raycast/rayc7.html
 proc raycast(p: player.Player, mapArr: LevelMap, width: uint, heights: var seq[uint8]): void =
