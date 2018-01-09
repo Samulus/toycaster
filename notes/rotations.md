@@ -42,3 +42,6 @@ We can use sin + cos to calculate it
 
 position.x += WalkingSpeed * velocityX
 position.y += WalkingSpeed * velocityY
+
+# Facing a Wall
+usually if the player is face against a wall, the whole screen is filled, the height of the screen should tell you what a meter is in pixels
