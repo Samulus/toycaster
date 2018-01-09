@@ -21,8 +21,6 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
-> Continue on simplifying getHorizontalIntersection()
-> Add test for finding horizontal intersection points
 * Implement the raycasting algorithm
 
 # ✔️  Done
@@ -34,3 +32,5 @@
 * Add test for correct player movement
 * Make the separation between map coordinates and player cartesian coordinates more clear
 * Add test for mapCoordinate -> cartesian  (and inverse)
+* Add test for finding horizontal intersection points
+* Continue on simplifying getHorizontalIntersection()
