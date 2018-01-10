@@ -9,9 +9,11 @@ import glm
 
 const
     MaximumDifference = 0.0001
-    AlmostOne = 0.99999999
     AlmostZero = 0.0001f
-    MaximumScreenWidth = 4096 #  4k resolution support for now
+    Fov = 60f.degToRad()
+
+    # Projected Slice Height = (Actual Height / Distance to Slice) * Distance to Projection Plane
+
 
 type
     Quadrant* = enum
@@ -87,7 +89,7 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
 
     case quadrant:
         of I, II:
-            Ya = -1.0 # If facing UP
+            Ya = -1.0 # If facing Up
         of III, IV:
             Ya =  1.0
 
@@ -98,15 +100,91 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
         if yPos < 0 or yPos >= mapHeight or xPos < 0 or xPos >= mapWidth:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
+            # TODO: Remove distortion:
+            # http://www.permadi.com/tutorial/raycast/rayc8.html
             return sqrt(pow(position.x - xCell, 2) + pow(position.y - yCell, 2))
         else:
             xPos = xPos + Xa
             yPos = yPos + Ya
 
-    return -666
+    return 1337
 
-proc verticalRaycast*(origin: Vec2f, xGap, yGap: float, mapArr: LevelMap): Vec2f =
+proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
+                        mapArr: LevelMap, almostZero = AlmostZero): float =
+    var
+        xPos = firstIntersection.x
+        yPos = firstIntersection.y
+        safeTheta = theta
+        Xa = 0.0f
+
+    if safeTheta == 0:
+        safeTheta = almostZero
+
+    let
+        Ya = 1 * tan(safeTheta)
+        mapWidth  = len(mapArr[0]).float
+        mapHeight = len(mapArr).float
+
+    case safeTheta.getQuadrant():
+        of I, IV:
+            Xa = 1.0 # Facing Right
+        of II, III:
+            Xa = -1.0
+
+    while true:
+        let
+            xCell = xPos.floor
+            yCell = yPos.floor
+        if yPos < 0 or yPos >= mapHeight or xPos < 0 or xPos >= mapWidth:
+            break
+        elif mapArr[yCell.int][xCell.int] == TileType.Wall:
+            # TODO: Remove distortion:
+            # http://www.permadi.com/tutorial/raycast/rayc8.html
+            return sqrt(pow(position.x - xCell, 2) + pow(position.y - yCell, 2))    
+        else:
+            xPos = xPos + Xa
+            yPos = yPos + Ya
+
+    return 1337
+
+proc scale(x, inMin, inMax, outMin, outMax: float): float =
+    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
+
+proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[uint8]): void =
+
+    var 
+        angle = theta - Fov/2
+        angleBetweenRays = Fov / screenWidth.float
+        y = 0
+    
+    while y < len(heights):
+        let 
+            horizontalCell = getHorizontalIntersection(position, angle)
+            verticalCell = getVerticalIntersection(position, angle)
+            horizontalDistance = horizontalRaycast(position, horizontalCell, angle, mapArr)
+            verticalDistance = verticalRaycast(position, verticalCell, angle, mapArr)
+            distance = min(verticalDistance, horizontalDistance)
+
+        heights[y] = scale(distance, 0.0, len(mapArr).float, 0.0, high(uint8).float).uint8
+        angle += angleBetweenRays
+        y = y + 1
+
+proc heightOfWall*(distance: float): void =
     discard
 
-proc heightOfWall*(): void =
-    discard
+    # Width / height are in pixels
+    # Dimension of Projection Plane (screenWidth x screenHeight)
+    # Center of Projection Plane (screenWidth / 2, x screenHeight /2)
+    # Distance to Projection Plane ((screenWidth / 2)) / tan(fov/2)
+    # Angle Between Subsequent Rays = (fov / screenWidth)
+
+    # ( Later )
+
+    # 0 meters away -> slice should take up entire screen
+    # 10 meters away --> slice should be invisible
+
+    # In the tutorial, the height of each wall is 64 Px but the height
+    # of the projection plane is 200 px
+
+    # The ratio 
+    # (WallHeight?  / DistancekkToSlice) * DistanceToProjectionPlane

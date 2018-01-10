@@ -48,6 +48,8 @@ let p = player.ctor(mapArr.get());
 var distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
 wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 
+#echo repr distances
+
 # Generate minimap texture
 let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
 
@@ -90,9 +92,11 @@ while running:
     p.update(dt)
 
   # Render Game
+  distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
   window.clear()
-  minimapRender.use(minimapImage)
-  minimapRender.render()
+  echo (repr(distances.bytes))
+  #minimapRender.use(minimapImage)
+  #minimapRender.render()
   #playerIcon.render()
   wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
   wallRender.render()

@@ -16,6 +16,7 @@ import glm
 import math
 import ../player
 import ../map
+import ../raycast
 
 const
     MaximumScreenWidth = 4096 #  4k resolution support for now
@@ -42,4 +43,5 @@ proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHei
             pixelFormat: PixelFormat,
             pixelType: PixelType)
 
+   raycastEachWall(p.position, p.theta, screenWidth, mapArr, DistanceTexture.bytes)
    return DistanceTexture

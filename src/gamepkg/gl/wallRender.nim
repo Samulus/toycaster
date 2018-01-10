@@ -60,10 +60,10 @@ proc use*(screenHeight, screenWidth: uint, distances: OpenGLImage): void =
     distances.uploadToGPU()
 
     # Upload `iResolution` vec2 uniform
-    #Shader.use()
-    #let iResolution = getUniformLocation(Shader, iResolutionName)
-    #assert(iResolution.int != -1, "Missing Uniform: " & $iResolutionName)
-    #glUniform2ui(iResolution.GLint, screenWidth.GLuint, screenHeight.GLuint)
+    Shader.use()
+    let iResolution = getUniformLocation(Shader, iResolutionName)
+    assert(iResolution.int != -1, "Missing Uniform: " & $iResolutionName)
+    glUniform2ui(iResolution.GLint, screenWidth.GLuint, screenHeight.GLuint)
 
 proc render*(): void =
     Shader.use()

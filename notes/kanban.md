@@ -1,4 +1,6 @@
 # 📥 Todo
+* Modify wall.frag so that it only draws parts of walls
+* Prevent assert from happening when 360 rotations occur
 
 # 🔬 Testing
 

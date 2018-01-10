@@ -16,7 +16,7 @@ import map
 const
     WalkingSpeed: Meter = 1.4
     FullRevolution = degToRad(360f)
-    RotationSpeed* = degToRad(1f)
+    RotationSpeed* = degToRad(60f)
     DefaultTheta* = degToRad(90f)
 
 type Player* = ref object of RootObj
