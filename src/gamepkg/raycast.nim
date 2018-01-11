@@ -6,14 +6,11 @@
 import map
 import math
 import glm
+import opengl
 
 const
-    MaximumDifference = 0.0001
     AlmostZero = 0.0001f
     Fov = 60f.degToRad()
-
-    # Projected Slice Height = (Actual Height / Distance to Slice) * Distance to Projection Plane
-
 
 type
     Quadrant* = enum
@@ -33,9 +30,10 @@ proc getQuadrant*(theta: float): Quadrant =
         return Quadrant.IV
 
 proc getHorizontalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZero): Vec2f =
-    assert(theta > -MaximumDifference, "Theta must be non-negative")
+    #if not (theta > -MaximumDifference)
+    #assert(theta > -MaximumDifference, "Theta must be non-negative")
     # Prevent divsion by 0
-    var safeTheta = theta
+    var safeTheta = abs(theta)
     if safeTheta == 0:
         safeTheta = almostZero
 
@@ -50,9 +48,9 @@ proc getHorizontalIntersection*(origin: Vec2f, theta: float, almostZero = Almost
     return A
 
 proc getVerticalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZero): Vec2f =
-    assert(theta > -MaximumDifference, "Theta must be non-negative")
+    #assert(theta > -MaximumDifference, "Theta must be non-negative")
     # Prevent divsion by 0
-    var safeTheta = theta
+    var safeTheta = abs(theta)
     if safeTheta == 0:
         safeTheta = almostZero
 
@@ -140,7 +138,7 @@ proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
             # TODO: Remove distortion:
             # http://www.permadi.com/tutorial/raycast/rayc8.html
-            return sqrt(pow(position.x - xCell, 2) + pow(position.y - yCell, 2))    
+            return sqrt(pow(position.x - xCell, 2) + pow(position.y - yCell, 2))
         else:
             xPos = xPos + Xa
             yPos = yPos + Ya
@@ -152,20 +150,23 @@ proc scale(x, inMin, inMax, outMin, outMax: float): float =
 
 proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[uint8]): void =
 
-    var 
+    var
         angle = theta - Fov/2
         angleBetweenRays = Fov / screenWidth.float
         y = 0
-    
+
     while y < len(heights):
-        let 
+        let
             horizontalCell = getHorizontalIntersection(position, angle)
             verticalCell = getVerticalIntersection(position, angle)
             horizontalDistance = horizontalRaycast(position, horizontalCell, angle, mapArr)
             verticalDistance = verticalRaycast(position, verticalCell, angle, mapArr)
             distance = min(verticalDistance, horizontalDistance)
 
+        # Take the distance in meters from the wall
         heights[y] = scale(distance, 0.0, len(mapArr).float, 0.0, high(uint8).float).uint8
+        #heights[y] = distance
+        #echo heights[y]
         angle += angleBetweenRays
         y = y + 1
 
@@ -186,5 +187,5 @@ proc heightOfWall*(distance: float): void =
     # In the tutorial, the height of each wall is 64 Px but the height
     # of the projection plane is 200 px
 
-    # The ratio 
+    # The ratio
     # (WallHeight?  / DistancekkToSlice) * DistanceToProjectionPlane

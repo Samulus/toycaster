@@ -1,7 +1,6 @@
 /*
     wall.frag
     Author: Samuel Vargas
-
 */
 
 #version 330 core
@@ -10,19 +9,21 @@ out vec4 FragColor;
 uniform uvec2 iResolution;
 uniform sampler2D wallData;
 
-float scale(float x, float inMin, float inMax, float outMin, float outMax) {
-    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-}
-
 void main() {
-    //uint xLoc = min(uint(gl_FragCoord.x), iResolution.x);
     uint xLoc = uint(gl_FragCoord.x);
-    float yLoc = gl_FragCoord.y / iResolution.y  ;
-    vec4 val = texelFetch(wallData, ivec2(xLoc, 0), 0);
-    FragColor = vec4(val.r, yLoc, gl_FragCoord.x / iResolution.x, 1);
-    /* Scale the input from [0 - 255] to 
-    FragColor = vec4(val.rrr, 1.0);
+    float wallHeight = texelFetch(wallData, ivec2(xLoc, 0), 0).r;
 
-    /*
-        I
+    float heightNormalized = gl_FragCoord.y / iResolution.y;
+
+    // Calculate minimum and maximum pixels to paint within
+    float middle = 0.5f;
+    float offset = (middle * (wallHeight ));
+    float minimum = middle - offset; // 1.0f at the least
+    float maximum = middle + offset; // 0.0f at the most
+
+    if (heightNormalized >= minimum && heightNormalized <= maximum) {
+        FragColor = vec4(1,1,1,1);
+    } else {
+        FragColor = vec4(gl_FragCoord.xy / iResolution.xy, 0, 1);
+    }
 }

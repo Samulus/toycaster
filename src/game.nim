@@ -94,7 +94,8 @@ while running:
   # Render Game
   distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
   window.clear()
-  echo (repr(distances.bytes))
+  #echo (repr(p))
+  #echo (repr(distances.bytes))
   #minimapRender.use(minimapImage)
   #minimapRender.render()
   #playerIcon.render()

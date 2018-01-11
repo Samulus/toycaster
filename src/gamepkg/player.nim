@@ -60,15 +60,15 @@ method update*(this: Player, dt: float, walkSpeed = WalkingSpeed, rotateSpeed = 
             this.position.y += walkSpeed * this.velocity.y * dt
         of Backward:
             this.position.x -= walkSpeed * this.velocity.x * dt
-            this.position.y += walkSpeed * this.velocity.y * dt
+            this.position.y -= walkSpeed * this.velocity.y * dt
         of Left:
             this.theta += rotateSpeed * dt
-            if this.theta > FullRevolution:
+            if this.theta >= FullRevolution:
                 this.theta = 0
             this.velocity.x = math.cos(this.theta)
             this.velocity.y = math.sin(this.theta)
         of Right:
-            if this.theta < 0:
+            if this.theta <= 0:
                 this.theta = FullRevolution
             this.theta -= rotateSpeed * dt
             this.velocity.x = math.cos(this.theta)
