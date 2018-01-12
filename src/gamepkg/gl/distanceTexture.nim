@@ -10,6 +10,7 @@
 import sequtils
 import colors
 import image
+import imageFloat
 import opengl
 import easygl
 import glm
@@ -20,24 +21,25 @@ import ../raycast
 
 const
     MaximumScreenWidth = 4096 #  4k resolution support for now
-    TextureFormat = GL_RED.TextureInternalFormat
-    PixelFormat = PixelDataFormat.RED
-    PixelType = PixelDataType.UNSIGNED_BYTE
+    #TextureFormat = GL_RED.TextureInternalFormat
+    TextureFormat = GL_R16F.TextureInternalFormat
+    PixelFormat = GL_RED.PixelDataFormat
+    PixelType = PixelDataType.FLOAT
 
 var
-    DistanceTexture: OpenGLImage
+    DistanceTexture: OpenGLImageFloat
 
-proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHeight: uint): var OpenGLImage =
+proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHeight: uint): var OpenGLImageFloat =
    let
       widthPx = min(screenWidth, MaximumScreenWidth)
       heightPx = uint(1)
 
    if isNil(DistanceTexture):
-        DistanceTexture = OpenGLImage(
+        DistanceTexture = OpenGLImageFloat(
             width: widthPx,
             height: heightPx,
-            vertices: generateRectangleVertices(widthPx.float / screenWidth.float, heightPx.float / screenHeight.float),
-            bytes: newSeqWith(MaximumScreenWidth, 0.uint8),
+            vertices: imageFloat.generateRectangleVertices(widthPx.float / screenWidth.float, heightPx.float / screenHeight.float),
+            bytes: newSeqWith(MaximumScreenWidth, 0.GLFloat),
             components: 1,
             format: TextureFormat,
             pixelFormat: PixelFormat,

@@ -33,6 +33,7 @@ proc getHorizontalIntersection*(origin: Vec2f, theta: float, almostZero = Almost
     #if not (theta > -MaximumDifference)
     #assert(theta > -MaximumDifference, "Theta must be non-negative")
     # Prevent divsion by 0
+    #echo "Theta: " & $theta
     var safeTheta = abs(theta)
     if safeTheta == 0:
         safeTheta = almostZero
@@ -69,6 +70,7 @@ proc getVerticalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZe
 # map is returnedh
 proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
                         mapArr: LevelMap, almostZero = AlmostZero): float =
+
     # Prevent divsion by 0
     var
         xPos = firstIntersection.x
@@ -80,10 +82,10 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
         safeTheta = almostZero
 
     let
-        Xa = 1 / tan(safeTheta)
+        Xa = 1.0f / tan(safeTheta)
         quadrant = safeTheta.getQuadrant()
-        mapWidth  = len(mapArr[0]).float
-        mapHeight = len(mapArr).float
+        mapWidth  = len(mapArr[0]) # TODO Square maps supported only for right now
+        mapHeight = len(mapArr)
 
     case quadrant:
         of I, II:
@@ -91,21 +93,46 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
         of III, IV:
             Ya =  1.0
 
+    var
+        xCell = 0
+        yCell = 0
+
+    #echo "Start Loop"
+
     while true:
-        let
-            xCell = xPos.floor
-            yCell = yPos.floor
-        if yPos < 0 or yPos >= mapHeight or xPos < 0 or xPos >= mapWidth:
+        xCell = xPos.floor.int
+        yCell = yPos.floor.int
+
+        if yCell < 0 or yCell >= mapHeight or xCell < 0 or xCell >= mapWidth:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
             # TODO: Remove distortion:
             # http://www.permadi.com/tutorial/raycast/rayc8.html
-            return sqrt(pow(position.x - xCell, 2) + pow(position.y - yCell, 2))
+            #echo "Horizontal Wall"
+            #let distance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+            #return distance * cos(theta)
+            #let beta = theta - (Fov / 2.0f)
+            #return distortedDistance * cos(beta)
+            return sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
         else:
             xPos = xPos + Xa
             yPos = yPos + Ya
 
-    return 1337
+    if xCell < 0:
+      xCell = 0
+    elif xCell >= mapWidth:
+      xCell = mapWidth - 1
+    if yCell < 0:
+      yCell = 0
+    elif yCell >= mapHeight:
+      yCell = mapHeight - 1
+
+    if mapArr[yCell][xCell] == TileType.Wall:
+        return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+
+
+    assert(false, "[horizontalRaycast] should not get here in a closed map")
+    return 0
 
 proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
                         mapArr: LevelMap, almostZero = AlmostZero): float =
@@ -120,8 +147,8 @@ proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
 
     let
         Ya = 1 * tan(safeTheta)
-        mapWidth  = len(mapArr[0]).float
-        mapHeight = len(mapArr).float
+        mapWidth  = len(mapArr[0]).int
+        mapHeight = len(mapArr).int
 
     case safeTheta.getQuadrant():
         of I, IV:
@@ -129,33 +156,54 @@ proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
         of II, III:
             Xa = -1.0
 
+    var
+        xCell = 0
+        yCell = 0
+
     while true:
-        let
-            xCell = xPos.floor
-            yCell = yPos.floor
-        if yPos < 0 or yPos >= mapHeight or xPos < 0 or xPos >= mapWidth:
+        xCell = xPos.floor.int
+        yCell = yPos.floor.int
+
+        if yPos < 0 or yPos >= mapHeight.float or xPos < 0 or xPos >= mapWidth.float:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
             # TODO: Remove distortion:
             # http://www.permadi.com/tutorial/raycast/rayc8.html
-            return sqrt(pow(position.x - xCell, 2) + pow(position.y - yCell, 2))
+            #echo "Vertical Wall"
+            #let distortedDistance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+            #let beta = theta - Fov / 2
+            #return distortedDistance * cos(beta)
+            #let distance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+            #return distance * cos(theta)
+            return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
         else:
             xPos = xPos + Xa
             yPos = yPos + Ya
 
-    return 1337
+    if xCell < 0:
+      xCell = 0
+    elif xCell >= mapWidth:
+      xCell = mapWidth - 1
+    if yCell < 0:
+      yCell = 0
+    elif yCell >= mapHeight:
+      yCell = mapHeight - 1
 
-proc scale(x, inMin, inMax, outMin, outMax: float): float =
-    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
+    if mapArr[yCell][xCell] == TileType.Wall:
+        return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
 
-proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[uint8]): void =
+
+    assert(false, "[verticalRaycast] should not get here in a closed map")
+    return 0
+
+proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[GLfloat]): void =
 
     var
-        angle = theta - Fov/2
+        angle = theta + Fov/2
         angleBetweenRays = Fov / screenWidth.float
         y = 0
 
-    while y < len(heights):
+    while y < screenWidth.int:
         let
             horizontalCell = getHorizontalIntersection(position, angle)
             verticalCell = getVerticalIntersection(position, angle)
@@ -163,11 +211,15 @@ proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: 
             verticalDistance = verticalRaycast(position, verticalCell, angle, mapArr)
             distance = min(verticalDistance, horizontalDistance)
 
+        #echo angle.radToDeg()
+
         # Take the distance in meters from the wall
-        heights[y] = scale(distance, 0.0, len(mapArr).float, 0.0, high(uint8).float).uint8
-        #heights[y] = distance
+        #heights[y] = scale(distance, 0.0, len(mapArr).float, 0.0, high(uint8).float).uint8
+        heights[y] = (1 / distance) * ((screenWidth.float / 2.0f) / tan(Fov/2))
         #echo heights[y]
-        angle += angleBetweenRays
+        angle -= angleBetweenRays # Should DECREASE If we start at far left and go toward right
+        #if (angle < 58f.degToRad()):
+            #assert (angle >= 58f.degToRad())
         y = y + 1
 
 proc heightOfWall*(distance: float): void =

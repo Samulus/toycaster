@@ -15,6 +15,7 @@
 
 import ../map
 import image
+import imageFloat
 import opengl
 import easygl
 import easygl.utils
@@ -35,7 +36,7 @@ const
     fragShaderPath = "./glsl/wall.frag"
     vertShaderPath = "./glsl/wall.vert"
 
-var 
+var
     VAO: VertexArrayId
     VBO: BufferId
     EBO: BufferId
@@ -50,8 +51,10 @@ proc init*(): void =
     Tex = genTexture()
     bindVertexArray(VAO)
 
-proc use*(screenHeight, screenWidth: uint, distances: OpenGLImage): void =
+proc use*(screenHeight, screenWidth: uint, distances: OpenGLImageFloat): void =
     bindVertexArray(VAO)
+
+    distances.width = screenWidth
 
     distances.bindToTextureUnit(Tex, 1)
     distances.copyVertexAttributesToGPU(VBO, EBO, Vertices)
