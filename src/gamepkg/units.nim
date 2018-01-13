@@ -13,5 +13,8 @@ type
     Direction* = enum
         Forward,
         Backward,
+
+type
+    Rotation* = enum
         Left,
         Right

@@ -14,7 +14,7 @@ import options
 import map
 
 const
-    WalkingSpeed: Meter = 1.4
+    WalkingSpeed: Meter = 2.5
     FullRevolution = degToRad(360f)
     RotationSpeed* = degToRad(120f)
     DefaultTheta* = degToRad(90f)
@@ -22,6 +22,7 @@ const
 type Player* = ref object of RootObj
     position*: Vec2f
     velocity*: Vec2f
+    rotation*: Option[Rotation]
     direction*: Option[Direction]
     theta*: float
 
@@ -41,37 +42,41 @@ proc ctor*(mapArr: LevelMap): Player =
     return Player(
         position: vec2f(spawnX.float + 0.5, spawnY.float + 0.5),
         velocity: vec2f(cos(DefaultTheta), sin(DefaultTheta)),
+        rotation: none(Rotation),
         direction: none(Direction),
         theta: DefaultTheta
     )
 
-method move*(this: Player, direction: Direction, pressed: bool): void {.base.} =
-    if not pressed:
-        this.direction = none(Direction)
-    else:
-        this.direction = some(direction)
+method move*(this: Player, direction: Direction): void {.base.} =
+    this.direction = some(direction)
+
+method rotate*(this: Player, rotation: Rotation): void {.base.} =
+    this.rotation = some(rotation)
 
 method update*(this: Player, dt: float, walkSpeed = WalkingSpeed, rotateSpeed = RotationSpeed): void {.base.} =
-    if this.direction.isNone:
-        return
-    case this.direction.get():
-        of Forward:
-            this.position.x += walkSpeed * this.velocity.x * dt
-            this.position.y -= walkSpeed * this.velocity.y * dt
-        of Backward:
-            this.position.x -= walkSpeed * this.velocity.x * dt
-            this.position.y += walkSpeed * this.velocity.y * dt
-        of Left:
-            this.theta += rotateSpeed * dt
-            if this.theta >= FullRevolution:
-                this.theta = 0
-            this.velocity.x = math.cos(this.theta)
-            this.velocity.y = math.sin(this.theta)
-        of Right:
-            if this.theta <= 0:
-                this.theta = FullRevolution
-            this.theta -= rotateSpeed * dt
-            this.velocity.x = math.cos(this.theta)
-            this.velocity.y = math.sin(this.theta)
+    if not this.rotation.isNone:
+        case this.rotation.get():
+            of Left:
+                this.theta += rotateSpeed * dt
+                if this.theta >= FullRevolution:
+                    this.theta = 0
+                this.velocity.x = math.cos(this.theta)
+                this.velocity.y = math.sin(this.theta)
+            of Right:
+                if this.theta <= 0:
+                    this.theta = FullRevolution
+                this.theta -= rotateSpeed * dt
+                this.velocity.x = math.cos(this.theta)
+                this.velocity.y = math.sin(this.theta)
 
+    if not this.direction.isNone:
+        case this.direction.get():
+            of Forward:
+                this.position.x += walkSpeed * this.velocity.x * dt
+                this.position.y -= walkSpeed * this.velocity.y * dt
+            of Backward:
+                this.position.x -= walkSpeed * this.velocity.x * dt
+                this.position.y += walkSpeed * this.velocity.y * dt
+    
+    this.rotation = none(Rotation)
     this.direction = none(Direction)

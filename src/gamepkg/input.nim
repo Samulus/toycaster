@@ -12,16 +12,22 @@ const
     LeftTurnKey = sdl.SCANCODE_A
     RightTurnKey = sdl.SCANCODE_D
 
+proc isRotationKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8], 
+                    rotation: var Rotation): bool =
+    if keyboardState[LeftTurnKey] > 0:
+        rotation = Rotation.Left
+    elif keyboardState[RightTurnKey] > 0:
+        rotation = Rotation.Right
+    else:
+        return false
+    return true
 
-proc isMovementKey*(key: KeyboardEventObj, direction: var Direction): bool =
-    if key.keysym.scancode == ForwardKey:
+proc isDirectionKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8], 
+                    direction: var Direction): bool =
+    if keyboardState[ForwardKey] > 0:
         direction = Direction.Forward
-    elif key.keysym.scancode == BackwardKey:
+    elif keyboardState[BackwardKey] > 0:
         direction = Direction.Backward
-    elif key.keysym.scancode == LeftTurnKey:
-        direction = Direction.Left
-    elif key.keysym.scancode == RightTurnKey:
-        direction = Direction.Right
     else:
         return false
     return true

@@ -61,6 +61,18 @@ while running:
   let dt = tick.update();
 
   # Handle Input
+  let keyboard = getKeyboardState(nil)
+  var 
+      direction: Direction
+      rotation: Rotation
+
+  if input.isDirectionKey(keyboard, direction):
+     p.move(direction)
+
+  if input.isRotationKey(keyboard, rotation):
+     p.rotate(rotation)
+
+  # Handle Events
   let event = getEvent()
   if event.isSome():
     case event.get().kind:
@@ -69,12 +81,6 @@ while running:
       of EventKind.QUIT:
         running = false;
         break;
-
-      # Keyboard Events
-      of EventKind.KEYDOWN, EventKind.KEYUP:
-        var direction: Direction
-        if input.isMovementKey(event.get().key, direction):
-          p.move(direction, event.get().key.state == sdl.PRESSED)
 
       # Window Resize Event
       of EventKind.WINDOWEVENT:
