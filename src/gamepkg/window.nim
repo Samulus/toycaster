@@ -9,8 +9,8 @@ import opengl
 
 const
     Title = "Game"
-    Width = 1920
-    Height = 1080
+    Width = 700
+    Height = 700
     WindowFlags = sdl.WINDOW_ALLOW_HIGHDPI or
                   sdl.WINDOW_RESIZABLE or
                   sdl.WINDOW_OPENGL
