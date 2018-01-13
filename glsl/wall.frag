@@ -21,10 +21,11 @@ void main() {
     float offset = (middle * ratio);
     float minimum = middle - offset; // 1.0f at the least
     float maximum = middle + offset; // 0.0f at the most
-    float avg = (minimum + maximum) / 2;
+    float avg = (minimum + maximum);
 
     if (heightNormalized >= minimum && heightNormalized <= maximum) {
-        FragColor = vec4(1 * avg, 1 * avg, 1 * avg, 1);
+        //FragColor = vec4(heightNormalized, gl_FragCoord.y / iResolution.y, avg, 1);
+        FragColor = vec4(heightNormalized, heightNormalized, heightNormalized, 1);
     } else {
         FragColor = vec4(gl_FragCoord.xy / iResolution.xy, 0, 1);
     }

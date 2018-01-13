@@ -90,9 +90,9 @@ proc raycast*(position, firstIntersection: Vec2f,
     # Determine cell check direction based off orientation + safeTheta quadrant
     if orientation == Horizontal:
         Ya = if quadrant == Quadrant.I or quadrant == Quadrant.II: -1.0f else: 1.0f
-        Xa = 1.0f / tan(safeTheta)
+        Xa = 1.0f / tan(safeSweeping)
     else:
-        Ya = 1.0f * tan(safeTheta)
+        Ya = 1.0f * tan(safeSweeping)
         Xa = if quadrant == Quadrant.I or quadrant == Quadrant.IV: 1.0f else: -1.0f
 
     # Calculate distance from player to closest wall intersection
@@ -121,130 +121,7 @@ proc raycast*(position, firstIntersection: Vec2f,
 
     return distortedDistance * cos(beta)
 
-# Returns the coordinate of the first horizontal wall
-# boundary. If no walls are found the extreme edge of the
-# map is returnedh
-proc horizontalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
-                        mapArr: LevelMap, almostZero = AlmostZero): float =
-
-    # Prevent divsion by 0
-    var
-        xPos = firstIntersection.x
-        yPos = firstIntersection.y
-        safeSweep = sweep
-        Ya = 0.0f
-
-    if safeSweep == 0:
-        safeSweep = almostZero
-
-    let
-        Xa = 1.0f / tan(safeSweep)
-        quadrant = safeSweep.getQuadrant()
-        mapWidth  = len(mapArr[0]) # TODO Square maps supported only for right now
-        mapHeight = len(mapArr)
-
-    case quadrant:
-        of I, II:
-            Ya = -1.0 # If facing Up
-        of III, IV:
-            Ya =  1.0
-
-    var
-        xCell = 0
-        yCell = 0
-
-    while true:
-        xCell = xPos.floor.int
-        yCell = yPos.floor.int
-
-        if yCell < 0 or yCell >= mapHeight or xCell < 0 or xCell >= mapWidth:
-            break
-        elif mapArr[yCell.int][xCell.int] == TileType.Wall:
-            let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
-            let beta = safeSweep - theta
-            return dist * cos(beta)
-        else:
-            xPos = xPos + Xa
-            yPos = yPos + Ya
-
-    if xCell < 0:
-      xCell = 0
-    elif xCell >= mapWidth:
-      xCell = mapWidth - 1
-    if yCell < 0:
-      yCell = 0
-    elif yCell >= mapHeight:
-      yCell = mapHeight - 1
-
-    if mapArr[yCell][xCell] == TileType.Wall:
-        let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
-        let beta = safeSweep - theta
-        return dist * cos(beta)
-
-
-    assert(false, "[horizontalRaycast] should not get here in a closed map")
-    return 0
-
-proc verticalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
-                        mapArr: LevelMap, almostZero = AlmostZero): float =
-    var
-        xPos = firstIntersection.x
-        yPos = firstIntersection.y
-        safeSweep = sweep
-        Xa = 0.0f
-
-    if safeSweep == 0:
-        safeSweep = almostZero
-
-    let
-        Ya = 1 * tan(safeSweep)
-        mapWidth  = len(mapArr[0]).int
-        mapHeight = len(mapArr).int
-
-    case safeSweep.getQuadrant():
-        of I, IV:
-            Xa = 1.0 # Facing Right
-        of II, III:
-            Xa = -1.0
-
-    var
-        xCell = 0
-        yCell = 0
-
-    while true:
-        xCell = xPos.floor.int
-        yCell = yPos.floor.int
-
-        if yPos < 0 or yPos >= mapHeight.float or xPos < 0 or xPos >= mapWidth.float:
-            break
-        elif mapArr[yCell.int][xCell.int] == TileType.Wall:
-            let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
-            let beta = safeSweep - theta
-            return dist * cos(beta)
-        else:
-            xPos = xPos + Xa
-            yPos = yPos + Ya
-
-    if xCell < 0:
-      xCell = 0
-    elif xCell >= mapWidth:
-      xCell = mapWidth - 1
-    if yCell < 0:
-      yCell = 0
-    elif yCell >= mapHeight:
-      yCell = mapHeight - 1
-
-    if mapArr[yCell][xCell] == TileType.Wall:
-        let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
-        let beta = safeSweep - theta
-        return dist * cos(beta)
-
-
-    assert(false, "[verticalRaycast] should not get here in a closed map")
-    return 0
-
 proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[GLfloat]): void =
-
     var
         angle = theta + Fov/2
         angleBetweenRays = Fov / screenWidth.float
@@ -254,19 +131,10 @@ proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: 
         let
             horizontalCell = findFirstIntersection(position, angle, Horizontal)
             verticalCell = findFirstIntersection(position, angle, Vertical)
-            horizontalDistance = horizontalRaycast(position, horizontalCell, angle, theta, mapArr)
-            verticalDistance = verticalRaycast(position, verticalCell, angle, theta, mapArr)
-            #horizontalDistance = raycast(position, horizontalCell, theta, angle, mapArr, Horizontal)
-            #verticalDistance = raycast(position, verticalCell, theta, angle, mapArr, Vertical)
+            horizontalDistance = raycast(position, horizontalCell, theta, angle, mapArr, Horizontal)
+            verticalDistance = raycast(position, verticalCell, theta, angle, mapArr, Vertical)
             distance = min(verticalDistance, horizontalDistance)
 
-        #echo angle.radToDeg()
-
-        # Take the distance in meters from the wall
-        #heights[y] = scale(distance, 0.0, len(mapArr).float, 0.0, high(uint8).float).uint8
         heights[y] = (1 / distance) * ((screenWidth.float / 2.0f) / tan(Fov/2))
-        #echo heights[y]
         angle -= angleBetweenRays # Should DECREASE If we start at far left and go toward right
-        #if (angle < 58f.degToRad()):
-            #assert (angle >= 58f.degToRad())
         y = y + 1
