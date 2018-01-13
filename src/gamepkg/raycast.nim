@@ -57,25 +57,89 @@ proc findFirstIntersection*(origin: Vec2f, theta: float, orientation: Orientatio
 
     return point
 
+
+proc raycast*(position, firstIntersection: Vec2f,
+              theta: float,
+              sweeping: float, mapArr: LevelMap,
+              orientation: Orientation,
+              almostZero = AlmostZero): float =
+
+    let
+        mapWidth  = len(mapArr[0])
+        mapHeight = len(mapArr)
+
+    var
+        xPos = firstIntersection.x
+        yPos = firstIntersection.y
+        safeTheta = theta
+        safeSweeping = sweeping
+
+    # Prevent divison by 0
+    if safeTheta == 0:
+        safeTheta = almostZero
+
+    if safeSweeping == 0:
+        safeSweeping = almostZero
+
+    let quadrant = safeTheta.getQuadrant()
+    var
+        Ya = 0.0f
+        Xa = 0.0f
+
+    # Calculate Y offset / X offset for subsequent map cell checks
+    # Determine cell check direction based off orientation + safeTheta quadrant
+    if orientation == Horizontal:
+        Ya = if quadrant == Quadrant.I or quadrant == Quadrant.II: -1.0f else: 1.0f
+        Xa = 1.0f / tan(safeTheta)
+    else:
+        Ya = 1.0f * tan(safeTheta)
+        Xa = if quadrant == Quadrant.I or quadrant == Quadrant.IV: 1.0f else: -1.0f
+
+    # Calculate distance from player to closest wall intersection
+    var
+        xCell = 0
+        yCell = 0
+
+    while true:
+        xCell = xPos.floor.int
+        yCell = yPos.floor.int
+
+        if yPos < 0 or yPos >= mapHeight.float or xPos < 0 or xPos >= mapWidth.float:
+            break
+        elif mapArr[yCell.int][xCell.int] == TileType.Wall:
+            let
+                distortedDistance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+                beta = safeSweeping - safeTheta
+            return distortedDistance * cos(beta)
+        else:
+            xPos = xPos + Xa
+            yPos = yPos + Ya
+
+    let
+        distortedDistance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+        beta = sweeping - theta
+
+    return distortedDistance * cos(beta)
+
 # Returns the coordinate of the first horizontal wall
 # boundary. If no walls are found the extreme edge of the
 # map is returnedh
-proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
+proc horizontalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
                         mapArr: LevelMap, almostZero = AlmostZero): float =
 
     # Prevent divsion by 0
     var
         xPos = firstIntersection.x
         yPos = firstIntersection.y
-        safeTheta = theta
+        safeSweep = sweep
         Ya = 0.0f
 
-    if safeTheta == 0:
-        safeTheta = almostZero
+    if safeSweep == 0:
+        safeSweep = almostZero
 
     let
-        Xa = 1.0f / tan(safeTheta)
-        quadrant = safeTheta.getQuadrant()
+        Xa = 1.0f / tan(safeSweep)
+        quadrant = safeSweep.getQuadrant()
         mapWidth  = len(mapArr[0]) # TODO Square maps supported only for right now
         mapHeight = len(mapArr)
 
@@ -89,8 +153,6 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
         xCell = 0
         yCell = 0
 
-    #echo "Start Loop"
-
     while true:
         xCell = xPos.floor.int
         yCell = yPos.floor.int
@@ -98,13 +160,6 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
         if yCell < 0 or yCell >= mapHeight or xCell < 0 or xCell >= mapWidth:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
-            # TODO: Remove distortion:
-            # http://www.permadi.com/tutorial/raycast/rayc8.html
-            #echo "Horizontal Wall"
-            #let distance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
-            #return distance * cos(theta)
-            #let beta = theta - (Fov / 2.0f)
-            #return distortedDistance * cos(beta)
             return sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
         else:
             xPos = xPos + Xa
@@ -126,23 +181,23 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, theta: float,
     assert(false, "[horizontalRaycast] should not get here in a closed map")
     return 0
 
-proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
+proc verticalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
                         mapArr: LevelMap, almostZero = AlmostZero): float =
     var
         xPos = firstIntersection.x
         yPos = firstIntersection.y
-        safeTheta = theta
+        safeSweep = sweep
         Xa = 0.0f
 
-    if safeTheta == 0:
-        safeTheta = almostZero
+    if safeSweep == 0:
+        safeSweep = almostZero
 
     let
-        Ya = 1 * tan(safeTheta)
+        Ya = 1 * tan(safeSweep)
         mapWidth  = len(mapArr[0]).int
         mapHeight = len(mapArr).int
 
-    case safeTheta.getQuadrant():
+    case safeSweep.getQuadrant():
         of I, IV:
             Xa = 1.0 # Facing Right
         of II, III:
@@ -159,14 +214,6 @@ proc verticalRaycast*(position, firstIntersection: Vec2f, theta: float,
         if yPos < 0 or yPos >= mapHeight.float or xPos < 0 or xPos >= mapWidth.float:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
-            # TODO: Remove distortion:
-            # http://www.permadi.com/tutorial/raycast/rayc8.html
-            #echo "Vertical Wall"
-            #let distortedDistance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
-            #let beta = theta - Fov / 2
-            #return distortedDistance * cos(beta)
-            #let distance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
-            #return distance * cos(theta)
             return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
         else:
             xPos = xPos + Xa
@@ -199,8 +246,10 @@ proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: 
         let
             horizontalCell = findFirstIntersection(position, angle, Horizontal)
             verticalCell = findFirstIntersection(position, angle, Vertical)
-            horizontalDistance = horizontalRaycast(position, horizontalCell, angle, mapArr)
-            verticalDistance = verticalRaycast(position, verticalCell, angle, mapArr)
+            horizontalDistance = horizontalRaycast(position, horizontalCell, angle, theta, mapArr)
+            verticalDistance = verticalRaycast(position, verticalCell, angle, theta, mapArr)
+            #horizontalDistance = raycast(position, horizontalCell, theta, angle, mapArr, Horizontal)
+            #verticalDistance = raycast(position, verticalCell, theta, angle, mapArr, Vertical)
             distance = min(verticalDistance, horizontalDistance)
 
         #echo angle.radToDeg()
