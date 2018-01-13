@@ -29,41 +29,33 @@ proc getQuadrant*(theta: float): Quadrant =
     else:
         return Quadrant.IV
 
-proc getHorizontalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZero): Vec2f =
-    #if not (theta > -MaximumDifference)
-    #assert(theta > -MaximumDifference, "Theta must be non-negative")
-    # Prevent divsion by 0
-    #echo "Theta: " & $theta
+type
+    Orientation* = enum
+        Vertical,
+        Horizontal,
+
+proc findFirstIntersection*(origin: Vec2f, theta: float, orientation: Orientation, almostZero = AlmostZero): Vec2f =
     var safeTheta = abs(theta)
     if safeTheta == 0:
         safeTheta = almostZero
 
-    var A = vec2f(0, 0)
-    case safeTheta.getQuadrant():
-        of I, II:
-            A.y = floor(origin.y) - almostZero
-        of III, IV:
-            A.y = floor(origin.y) + 1 + almostZero
+    let quadrant = safeTheta.getQuadrant()
+    var point = vec2f(0, 0)
 
-    A.x = origin.x + (origin.y - A.y) / tan(safeTheta)
-    return A
+    if orientation == Horizontal:
+        if quadrant == Quadrant.I or quadrant == Quadrant.II:
+            point.y = floor(origin.y) - almostZero
+        else:
+            point.y = floor(origin.y) + 1 + almostZero
+        point.x = origin.x + (origin.y - point.y) / tan(safeTheta)
+    else:
+        if quadrant == Quadrant.I or quadrant == Quadrant.IV:
+            point.x = floor(origin.x) + 1 + almostZero
+        else:
+            point.x = floor(origin.x) - almostZero
+        point.y = origin.y + (origin.x - point.x) * tan(safeTheta)
 
-proc getVerticalIntersection*(origin: Vec2f, theta: float, almostZero = AlmostZero): Vec2f =
-    #assert(theta > -MaximumDifference, "Theta must be non-negative")
-    # Prevent divsion by 0
-    var safeTheta = abs(theta)
-    if safeTheta == 0:
-        safeTheta = almostZero
-
-    var B = vec2f(0, 0)
-    case safeTheta.getQuadrant():
-        of I, IV:
-            B.x = floor(origin.x) + 1 + almostZero
-        of II, III:
-            B.x = floor(origin.x) - almostZero
-
-    B.y = origin.y + (origin.x - B.x) * tan(safeTheta)
-    return B
+    return point
 
 # Returns the coordinate of the first horizontal wall
 # boundary. If no walls are found the extreme edge of the
@@ -205,8 +197,8 @@ proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: 
 
     while y < screenWidth.int:
         let
-            horizontalCell = getHorizontalIntersection(position, angle)
-            verticalCell = getVerticalIntersection(position, angle)
+            horizontalCell = findFirstIntersection(position, angle, Horizontal)
+            verticalCell = findFirstIntersection(position, angle, Vertical)
             horizontalDistance = horizontalRaycast(position, horizontalCell, angle, mapArr)
             verticalDistance = verticalRaycast(position, verticalCell, angle, mapArr)
             distance = min(verticalDistance, horizontalDistance)
@@ -221,23 +213,3 @@ proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: 
         #if (angle < 58f.degToRad()):
             #assert (angle >= 58f.degToRad())
         y = y + 1
-
-proc heightOfWall*(distance: float): void =
-    discard
-
-    # Width / height are in pixels
-    # Dimension of Projection Plane (screenWidth x screenHeight)
-    # Center of Projection Plane (screenWidth / 2, x screenHeight /2)
-    # Distance to Projection Plane ((screenWidth / 2)) / tan(fov/2)
-    # Angle Between Subsequent Rays = (fov / screenWidth)
-
-    # ( Later )
-
-    # 0 meters away -> slice should take up entire screen
-    # 10 meters away --> slice should be invisible
-
-    # In the tutorial, the height of each wall is 64 Px but the height
-    # of the projection plane is 200 px
-
-    # The ratio
-    # (WallHeight?  / DistancekkToSlice) * DistanceToProjectionPlane
