@@ -115,10 +115,11 @@ proc raycast*(position, firstIntersection: Vec2f,
             xPos = xPos + Xa
             yPos = yPos + Ya
 
+    #echo "xPos: " & $xPos & " " & "yPos: " & $yPos
+    #return 0
     let
         distortedDistance = sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
         beta = sweeping - theta
-
     return distortedDistance * cos(beta)
 
 proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[GLfloat]): void =
