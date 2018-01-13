@@ -37,7 +37,7 @@ if mapArr.isNone:
   quit(QuitFailure)
 
 # Init renderers
-minimapRender.init()
+#minimapRender.init()
 wallRender.init()
 #playerIcon.init(gameWindow.width(), gameWindow.height())
 
@@ -51,7 +51,7 @@ wallRender.use(gameWindow.width(), gameWindow.height(), distances)
 #echo repr distances
 
 # Generate minimap texture
-let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
+#let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
 
 # Create game entities && start main loop
 var running = true;

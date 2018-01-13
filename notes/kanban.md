@@ -23,7 +23,7 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
-* Implement the raycasting algorithm
+* Combine getVerticalIntersection && getHorizontalIntersection
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
@@ -36,3 +36,4 @@
 * Add test for mapCoordinate -> cartesian  (and inverse)
 * Add test for finding horizontal intersection points
 * Continue on simplifying getHorizontalIntersection()
+* Implement the raycasting algorithm

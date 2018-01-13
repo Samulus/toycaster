@@ -21,7 +21,6 @@ import ../raycast
 
 const
     MaximumScreenWidth = 4096 #  4k resolution support for now
-    #TextureFormat = GL_RED.TextureInternalFormat
     TextureFormat = GL_R16F.TextureInternalFormat
     PixelFormat = GL_RED.PixelDataFormat
     PixelType = PixelDataType.FLOAT
