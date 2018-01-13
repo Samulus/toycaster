@@ -160,7 +160,9 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
         if yCell < 0 or yCell >= mapHeight or xCell < 0 or xCell >= mapWidth:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
-            return sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
+            let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
+            let beta = safeSweep - theta
+            return dist * cos(beta)
         else:
             xPos = xPos + Xa
             yPos = yPos + Ya
@@ -175,7 +177,9 @@ proc horizontalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
       yCell = mapHeight - 1
 
     if mapArr[yCell][xCell] == TileType.Wall:
-        return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+        let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
+        let beta = safeSweep - theta
+        return dist * cos(beta)
 
 
     assert(false, "[horizontalRaycast] should not get here in a closed map")
@@ -214,7 +218,9 @@ proc verticalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
         if yPos < 0 or yPos >= mapHeight.float or xPos < 0 or xPos >= mapWidth.float:
             break
         elif mapArr[yCell.int][xCell.int] == TileType.Wall:
-            return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+            let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
+            let beta = safeSweep - theta
+            return dist * cos(beta)
         else:
             xPos = xPos + Xa
             yPos = yPos + Ya
@@ -229,7 +235,9 @@ proc verticalRaycast*(position, firstIntersection: Vec2f, sweep, theta: float,
       yCell = mapHeight - 1
 
     if mapArr[yCell][xCell] == TileType.Wall:
-        return sqrt(pow(position.x - xPos.float, 2) + pow(position.y - yPos.float, 2))
+        let dist = sqrt(pow(position.x - xPos, 2) + pow(position.y - yPos, 2))
+        let beta = safeSweep - theta
+        return dist * cos(beta)
 
 
     assert(false, "[verticalRaycast] should not get here in a closed map")
