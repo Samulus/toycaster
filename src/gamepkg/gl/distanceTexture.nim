@@ -28,10 +28,13 @@ const
 var
     DistanceTexture: OpenGLImageFloat
 
-proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHeight: uint): var OpenGLImageFloat =
+proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHeight: uint, wallColors: var seq[uint8]): var OpenGLImageFloat =
+
    let
       widthPx = min(screenWidth, MaximumScreenWidth)
       heightPx = uint(1)
+
+   assert(widthPx < len(wallColors).uint)
 
    if isNil(DistanceTexture):
         DistanceTexture = OpenGLImageFloat(
@@ -44,5 +47,5 @@ proc regenerateImage*(p: player.Player, mapArr: LevelMap, screenWidth, screenHei
             pixelFormat: PixelFormat,
             pixelType: PixelType)
 
-   raycastEachWall(p.position, p.theta, screenWidth, mapArr, DistanceTexture.bytes)
+   raycastEachWall(p.position, p.theta, screenWidth, mapArr, DistanceTexture.bytes, wallColors)
    return DistanceTexture

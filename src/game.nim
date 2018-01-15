@@ -23,6 +23,7 @@ import gamepkg/gl/minimapRender
 import gamepkg/gl/playerIcon
 import gamepkg/gl/wallRender
 import gamepkg/gl/distanceTexture
+import gamepkg/gl/colorTexture
 
 # Create the main application window
 var gameWindow: GameWindow;
@@ -44,9 +45,13 @@ wallRender.init()
 # Create player
 let p = player.ctor(mapArr.get());
 
-# Generate 1D texture with wall heights
-var distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
-wallRender.use(gameWindow.width(), gameWindow.height(), distances)
+# Generate 1D uint8 texture with wall types
+var wallColors = getColorTexture(gameWindow.width(), gameWindow.height())
+
+# Generate 1D GLfloat (16) texture with wall heights
+var distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
+wallRender.use(gameWindow.width(), gameWindow.height(), distances, wallColors)
+
 
 #echo repr distances
 
@@ -87,7 +92,7 @@ while running:
         if event.get().window.event == WINDOWEVENT_RESIZED:
           let width = gameWindow.width()
           let height = gameWindow.height()
-          distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
+          distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
           window.resize(width, height)
 
       else:
@@ -98,13 +103,13 @@ while running:
     p.update(dt)
 
   # Render Game
-  distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height())
+  distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
   window.clear()
   #echo (repr(p))
   #echo (repr(distances.bytes))
   #minimapRender.use(minimapImage)
   #minimapRender.render()
   #playerIcon.render()
-  wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances)
+  wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances, wallColors)
   wallRender.render()
   window.swap(gameWindow)

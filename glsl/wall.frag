@@ -8,13 +8,15 @@ out vec4 FragColor;
 
 uniform uvec2 iResolution;
 uniform sampler2D wallData;
+uniform sampler2D wallColor;
 
 void main() {
     uint xLoc = uint(gl_FragCoord.x);
-    float wallHeight = texelFetch(wallData, ivec2(xLoc, 0), 0).r;
+    float height = texelFetch(wallData, ivec2(xLoc, 0), 0).r;
+    int color = int(texelFetch(wallColor, ivec2(xLoc, 0), 0).r);
 
     float heightNormalized = gl_FragCoord.y / iResolution.y;
-    float ratio = wallHeight / iResolution.y;
+    float ratio = height / iResolution.y;
 
     // Calculate Minimum and Maximum Locations to Place Pixel Within
     float middle = 0.5f;
@@ -24,8 +26,12 @@ void main() {
     float avg = (minimum + maximum);
 
     if (heightNormalized >= minimum && heightNormalized <= maximum) {
-        //FragColor = vec4(heightNormalized, gl_FragCoord.y / iResolution.y, avg, 1);
-        FragColor = vec4(heightNormalized, heightNormalized, heightNormalized, 1);
+        if (color == 1) { // Red is a vertical wall
+            FragColor = vec4(1, heightNormalized, heightNormalized, 1);
+        }
+        else { // Blue is a horizontal wall
+            FragColor = vec4(heightNormalized, heightNormalized, 1, 1);
+        }
     } else {
         FragColor = vec4(gl_FragCoord.xy / iResolution.xy, 0, 1);
     }

@@ -97,6 +97,6 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
     resize(Width, Height)
 
     # Enable Capabilities
-    easygl.enable(Capability.DEPTH_TEST)
+    #easygl.enable(Capability.DEPTH_TEST)
     return true
 

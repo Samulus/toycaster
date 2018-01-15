@@ -33,6 +33,7 @@ let Vertices : seq[float32]  =
 const
     iResolutionName = "iResolution"
     WallDataName = "wallData"
+    WallColorName = "wallColor"
     fragShaderPath = "./glsl/wall.frag"
     vertShaderPath = "./glsl/wall.vert"
 
@@ -41,26 +42,35 @@ var
     VBO: BufferId
     EBO: BufferId
     Shader: ShaderProgramId
-    Tex: TextureId
+    DistanceTextureId: TextureId
+    WallColorTextureId: TextureId
 
 proc init*(): void =
     Shader = createAndLinkProgram(vertShaderPath, fragShaderPath)
     VAO = genVertexArray()
     VBO = genBuffer()
     EBO = genBuffer()
-    Tex = genTexture()
+    DistanceTextureId = genTexture()
+    WallColorTextureId = genTexture()
     bindVertexArray(VAO)
 
-proc use*(screenHeight, screenWidth: uint, distances: OpenGLImageFloat): void =
+proc use*(screenHeight, screenWidth: uint, distances: var OpenGLImageFloat, wallColors: var OpenGLImage): void =
     bindVertexArray(VAO)
 
+    # Setup distanceTexture each frame
     distances.width = screenWidth
-
-    distances.bindToTextureUnit(Tex, 1)
+    distances.bindToTextureUnit(DistanceTextureId, 1)
     distances.copyVertexAttributesToGPU(VBO, EBO, Vertices)
     distances.pairTextureWithSampler(Shader, WallDataName, 1)
     distances.setupParameters()
     distances.uploadToGPU()
+
+    # Setup wallColors each frame
+    wallColors.width = screenWidth
+    wallColors.bindToTextureUnit(WallColorTextureId, 2)
+    wallColors.pairTextureWithSampler(Shader, WallColorName, 2)
+    wallColors.setupParameters()
+    wallColors.uploadToGPU()
 
     # Upload `iResolution` vec2 uniform
     Shader.use()

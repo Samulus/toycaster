@@ -34,7 +34,9 @@ type
         Vertical,
         Horizontal,
 
-proc findFirstIntersection*(origin: Vec2f, theta: float, orientation: Orientation, almostZero = AlmostZero): Vec2f =
+proc findFirstIntersection*(origin: Vec2f, theta: float, 
+                            orientation: Orientation, 
+                            almostZero = AlmostZero): Vec2f =
     var safeTheta = abs(theta)
     if safeTheta == 0:
         safeTheta = almostZero
@@ -122,7 +124,7 @@ proc raycast*(position, firstIntersection: Vec2f,
         beta = sweeping - theta
     return distortedDistance * cos(beta)
 
-proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[GLfloat]): void =
+proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: LevelMap, heights: var seq[GLfloat], wallColors: var seq[uint8]): void =
     var
         angle = theta + Fov/2
         angleBetweenRays = Fov / screenWidth.float
@@ -134,8 +136,11 @@ proc raycastEachWall*(position: Vec2f, theta: float, screenWidth: uint, mapArr: 
             verticalCell = findFirstIntersection(position, angle, Vertical)
             horizontalDistance = raycast(position, horizontalCell, theta, angle, mapArr, Horizontal)
             verticalDistance = raycast(position, verticalCell, theta, angle, mapArr, Vertical)
-            distance = min(verticalDistance, horizontalDistance)
+
+        let isVertical = verticalDistance < horizontalDistance
+        var distance = min(verticalDistance, horizontalDistance)
 
         heights[y] = (1 / distance) * ((screenWidth.float / 2.0f) / tan(Fov/2))
+        wallColors[y] = if isVertical: high(uint8) else: 0.uint8
         angle -= angleBetweenRays # Should DECREASE If we start at far left and go toward right
         y = y + 1

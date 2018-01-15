@@ -70,6 +70,7 @@ method update*(this: Player, dt: float, walkSpeed = WalkingSpeed, rotateSpeed = 
                 this.velocity.y = math.sin(this.theta)
 
     if not this.direction.isNone:
+        echo repr(this)
         case this.direction.get():
             of Forward:
                 this.position.x += walkSpeed * this.velocity.x * dt
@@ -77,6 +78,6 @@ method update*(this: Player, dt: float, walkSpeed = WalkingSpeed, rotateSpeed = 
             of Backward:
                 this.position.x -= walkSpeed * this.velocity.x * dt
                 this.position.y += walkSpeed * this.velocity.y * dt
-    
+
     this.rotation = none(Rotation)
     this.direction = none(Direction)
