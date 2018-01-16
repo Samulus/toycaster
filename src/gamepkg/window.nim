@@ -9,8 +9,8 @@ import opengl
 
 const
     Title = "Game"
-    Width = 700
-    Height = 700
+    Width = 500
+    Height = 500
     WindowFlags = sdl.WINDOW_ALLOW_HIGHDPI or
                   sdl.WINDOW_RESIZABLE or
                   sdl.WINDOW_OPENGL
@@ -97,6 +97,6 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
     resize(Width, Height)
 
     # Enable Capabilities
-    #easygl.enable(Capability.DEPTH_TEST)
+    easygl.enable(Capability.DEPTH_TEST)
     return true
 

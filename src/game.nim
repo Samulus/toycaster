@@ -52,9 +52,6 @@ var wallColors = getColorTexture(gameWindow.width(), gameWindow.height())
 var distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
 wallRender.use(gameWindow.width(), gameWindow.height(), distances, wallColors)
 
-
-#echo repr distances
-
 # Generate minimap texture
 #let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
 
@@ -67,7 +64,7 @@ while running:
 
   # Handle Input
   let keyboard = getKeyboardState(nil)
-  var 
+  var
       direction: Direction
       rotation: Rotation
 
@@ -100,13 +97,11 @@ while running:
 
   # Update Game
   while tick.hasLag():
-    p.update(dt)
+    p.update(dt, mapArr.get())
 
   # Render Game
   distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
   window.clear()
-  #echo (repr(p))
-  #echo (repr(distances.bytes))
   #minimapRender.use(minimapImage)
   #minimapRender.render()
   #playerIcon.render()

@@ -86,7 +86,6 @@ method setupParameters*(this: OpenGLImageFloat): void {.base.} =
     texParameteri(TextureTarget.TEXTURE_2D, TextureParameter.TEXTURE_MAG_FILTER, GL_NEAREST);
 
 method uploadToGPU*(this: OpenGLImageFloat): void {.base.} =
-    #echo this.width
     texImage2D(TexImageTarget.TEXTURE_2D, 0.int32,
                this.format, this.width.int32, this.height.int32,
                this.pixelFormat, this.pixelType, this.bytes)

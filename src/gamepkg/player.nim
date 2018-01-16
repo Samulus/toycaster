@@ -16,7 +16,7 @@ import map
 const
     WalkingSpeed: Meter = 2.5
     FullRevolution = degToRad(360f)
-    RotationSpeed* = degToRad(120f)
+    RotationSpeed* = degToRad(100f)
     DefaultTheta* = degToRad(90f)
 
 type Player* = ref object of RootObj
@@ -25,6 +25,29 @@ type Player* = ref object of RootObj
     rotation*: Option[Rotation]
     direction*: Option[Direction]
     theta*: float
+    degrees: float
+
+proc moveWithinMap(point: var Vec2f, futureDelta: Vec2f, direction: Direction, mapArr: LevelMap): void =
+    var tmp = point
+    case direction:
+        of Forward:
+            tmp.x += futureDelta.x
+            tmp.y -= futureDelta.y
+        of Backward:
+            tmp.x -= futureDelta.x
+            tmp.y += futureDelta.y
+
+    # Refuse to go out of bounds (TODO: Support non square maps)
+    if tmp.x < 0 or tmp.x.int >= len(mapArr[0]) or
+       tmp.y < 0 or tmp.y.int >= len(mapArr):
+        return
+
+    # Refuse to go through solid wall
+    if mapArr[floor(tmp.y).int][floor(tmp.x).int] == TileType.Wall:
+        return
+
+    # Overwrite point with valid new location
+    point = tmp
 
 proc ctor*(mapArr: LevelMap): Player =
     var
@@ -44,7 +67,8 @@ proc ctor*(mapArr: LevelMap): Player =
         velocity: vec2f(cos(DefaultTheta), sin(DefaultTheta)),
         rotation: none(Rotation),
         direction: none(Direction),
-        theta: DefaultTheta
+        theta: DefaultTheta,
+        degrees: DefaultTheta.radToDeg()
     )
 
 method move*(this: Player, direction: Direction): void {.base.} =
@@ -53,31 +77,27 @@ method move*(this: Player, direction: Direction): void {.base.} =
 method rotate*(this: Player, rotation: Rotation): void {.base.} =
     this.rotation = some(rotation)
 
-method update*(this: Player, dt: float, walkSpeed = WalkingSpeed, rotateSpeed = RotationSpeed): void {.base.} =
+method update*(this: Player, dt: float, mapArr: LevelMap, walkSpeed = WalkingSpeed, rotateSpeed = RotationSpeed): void {.base.} =
     if not this.rotation.isNone:
         case this.rotation.get():
             of Left:
                 this.theta += rotateSpeed * dt
                 if this.theta >= FullRevolution:
                     this.theta = 0
+                this.degrees = this.theta.radToDeg()
                 this.velocity.x = math.cos(this.theta)
                 this.velocity.y = math.sin(this.theta)
             of Right:
                 if this.theta <= 0:
                     this.theta = FullRevolution
                 this.theta -= rotateSpeed * dt
+                this.degrees = this.theta.radToDeg()
                 this.velocity.x = math.cos(this.theta)
                 this.velocity.y = math.sin(this.theta)
 
     if not this.direction.isNone:
-        echo repr(this)
-        case this.direction.get():
-            of Forward:
-                this.position.x += walkSpeed * this.velocity.x * dt
-                this.position.y -= walkSpeed * this.velocity.y * dt
-            of Backward:
-                this.position.x -= walkSpeed * this.velocity.x * dt
-                this.position.y += walkSpeed * this.velocity.y * dt
+        let futureDelta = vec2f(walkSpeed * this.velocity.x * dt, walkSpeed * this.velocity.y * dt)
+        moveWithinMap(this.position, futureDelta, this.direction.get(), mapArr)
 
     this.rotation = none(Rotation)
     this.direction = none(Direction)

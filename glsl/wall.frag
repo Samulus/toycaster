@@ -18,14 +18,27 @@ void main() {
     float heightNormalized = gl_FragCoord.y / iResolution.y;
     float ratio = height / iResolution.y;
 
+    // Debug: Green Walls If missing
+    if (ratio <= 0.1) {
+        heightNormalized = 0.5;
+    }
+
     // Calculate Minimum and Maximum Locations to Place Pixel Within
     float middle = 0.5f;
     float offset = (middle * ratio);
     float minimum = middle - offset; // 1.0f at the least
     float maximum = middle + offset; // 0.0f at the most
-    float avg = (minimum + maximum);
 
-    if (heightNormalized >= minimum && heightNormalized <= maximum) {
+
+    // ratio > 0.1 prevents tiny thin wall strips from far away / non existent
+    // walls from being rendered
+    if (ratio > 0.1 && heightNormalized >= minimum && heightNormalized <= maximum) {
+        /*
+        if (ratio <= 0.1) {
+            FragColor = vec4(heightNormalized, iResolution.x / iResolution.y, heightNormalized, 1);
+        }
+        */
+
         if (color == 1) { // Red is a vertical wall
             FragColor = vec4(1, heightNormalized, heightNormalized, 1);
         }
