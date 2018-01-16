@@ -7,26 +7,33 @@ import sdl2/sdl
 import units
 
 const
-    ForwardKey = sdl.SCANCODE_W
-    BackwardKey = sdl.SCANCODE_S
-    LeftTurnKey = sdl.SCANCODE_A
-    RightTurnKey = sdl.SCANCODE_D
+    # WASD
+    W_ForwardKey = sdl.SCANCODE_W
+    S_BackwardKey = sdl.SCANCODE_S
+    A_LeftTurnKey = sdl.SCANCODE_A
+    D_RightTurnKey = sdl.SCANCODE_D
 
-proc isRotationKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8], 
+    # Arrow Keys
+    Up_ForwardKey = sdl.SCANCODE_UP
+    Down_BackwardKey = sdl.SCANCODE_DOWN
+    Left_LeftTurnKey = sdl.SCANCODE_LEFT
+    Right_RightTurnkey = sdl.SCANCODE_RIGHT
+
+proc isRotationKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8],
                     rotation: var Rotation): bool =
-    if keyboardState[LeftTurnKey] > 0:
+    if keyboardState[A_LeftTurnKey] > 0 or keyboardState[Left_LeftTurnKey] > 0:
         rotation = Rotation.Left
-    elif keyboardState[RightTurnKey] > 0:
+    elif keyboardState[D_RightTurnKey] > 0 or keyboardState[Right_RightTurnkey] > 0:
         rotation = Rotation.Right
     else:
         return false
     return true
 
-proc isDirectionKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8], 
+proc isDirectionKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8],
                     direction: var Direction): bool =
-    if keyboardState[ForwardKey] > 0:
+    if keyboardState[W_ForwardKey] > 0 or keyboardState[Up_ForwardKey] > 0:
         direction = Direction.Forward
-    elif keyboardState[BackwardKey] > 0:
+    elif keyboardState[S_BackwardKey] > 0 or keyboardState[Down_BackwardKey] > 0:
         direction = Direction.Backward
     else:
         return false
