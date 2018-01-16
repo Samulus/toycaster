@@ -1,19 +1,12 @@
 # 📥 Todo
-* Modify wall.frag so that it only draws parts of walls
-* Prevent assert from happening when 360 rotations occur
 
 # 🔬 Testing
 
 # ⚡  Optimizations
 
 # ✏️  Refactor
-* Unify common image related code between playerIcon, wallRender
-* Remove trailing whitespace from misc files
-* Split distanceTexture.nim into raycast.nim + distanceTexture.nim
 
 # 🐞 Bugs
-* Map and playerIcon do not render correctly on Windows
-* Make the separation between map coordinates and player cartesian coordinates more clear
 
 # 🖼️  Graphics
 * Scale Player icon so that it fits within a single map cell
@@ -23,7 +16,6 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
-* Combine getVerticalIntersection && getHorizontalIntersection
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
@@ -37,3 +29,11 @@
 * Add test for finding horizontal intersection points
 * Continue on simplifying getHorizontalIntersection()
 * Implement the raycasting algorithm
+* Combine getVerticalIntersection && getHorizontalIntersection
+* Modify wall.frag so that it only draws parts of walls
+* Prevent assert from happening when 360 rotations occur
+* Make the separation between map coordinates and player cartesian coordinates more clear
+* Map and playerIcon do not render correctly on Windows
+* Unify common image related code between playerIcon, wallRender
+* Remove trailing whitespace from misc files
+* Split distanceTexture.nim into raycast.nim + distanceTexture.nim
