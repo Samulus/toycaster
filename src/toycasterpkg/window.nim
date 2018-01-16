@@ -8,7 +8,7 @@ import easygl
 import opengl
 
 const
-    Title = "Game"
+    Title = "Toycaster"
     Width = 500
     Height = 500
     WindowFlags = sdl.WINDOW_ALLOW_HIGHDPI or
