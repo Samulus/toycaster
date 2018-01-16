@@ -1,5 +1,5 @@
 #
-# game.nim
+# toycaster.nim
 # Author: Samuel Vargas
 #
 
@@ -9,21 +9,21 @@ import opengl
 import options
 
 # Core Modules
-import gamepkg/window
-import gamepkg/event
-import gamepkg/player
-import gamepkg/input
-import gamepkg/tick
-import gamepkg/units
-import gamepkg/map
-import gamepkg/minimap
+import toycasterpkg/window
+import toycasterpkg/event
+import toycasterpkg/player
+import toycasterpkg/input
+import toycasterpkg/tick
+import toycasterpkg/units
+import toycasterpkg/map
+import toycasterpkg/minimap
 
 # OpenGL Modules
-import gamepkg/gl/minimapRender
-import gamepkg/gl/playerIcon
-import gamepkg/gl/wallRender
-import gamepkg/gl/distanceTexture
-import gamepkg/gl/colorTexture
+import toycasterpkg/gl/minimapRender
+import toycasterpkg/gl/playerIcon
+import toycasterpkg/gl/wallRender
+import toycasterpkg/gl/distanceTexture
+import toycasterpkg/gl/colorTexture
 
 # Create the main application window
 var gameWindow: GameWindow;

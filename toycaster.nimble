@@ -4,7 +4,7 @@ description   = "Game"
 license       = "MIT"
 
 srcDir        = "src"
-bin           = @["game"]
+bin           = @["toycaster"]
 
 requires      "sdl2_nim"
 requires      "easygl"
