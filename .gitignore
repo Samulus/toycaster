@@ -1,7 +1,7 @@
 src/nimcache/*
 tests/nimcache/*
 *.exe
-game
+toycaster
 
 # Images
 *.bmp
