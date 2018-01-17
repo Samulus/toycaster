@@ -54,7 +54,7 @@ proc init*(): void =
     WallColorTextureId = genTexture()
     bindVertexArray(VAO)
 
-proc use*(screenHeight, screenWidth: uint, distances: var OpenGLImageFloat, wallColors: var OpenGLImage): void =
+proc use*(screenWidth, screenHeight: uint, distances: var OpenGLImageFloat, wallColors: var OpenGLImage): void =
     bindVertexArray(VAO)
 
     # Setup distanceTexture each frame
