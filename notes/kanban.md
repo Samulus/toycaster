@@ -16,6 +16,7 @@
 # 🔧 Mechanical
 
 # ⏲️  In Progress
+* Add basic texture support
 
 # ✔️  Done
 * Minimap should keep correct aspect ratio
