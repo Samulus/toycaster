@@ -39,9 +39,7 @@ if mapArr.isNone:
   quit(QuitFailure)
 
 # Init renderers
-#minimapRender.init()
 wallRender.init()
-#playerIcon.init(gameWindow.width(), gameWindow.height())
 
 # Create player
 let p = player.ctor(mapArr.get());
@@ -52,9 +50,6 @@ var wallColors = getColorTexture(gameWindow.width(), gameWindow.height())
 # Generate 1D GLfloat (16) texture with wall heights
 var distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
 wallRender.use(gameWindow.width(), gameWindow.height(), distances, wallColors)
-
-# Generate minimap texture
-#let minimapImage = minimap.toOpenGLImage(mapArr.get(), gameWindow.width(), gameWindow.height())
 
 # Create game entities && start main loop
 var running = true;
@@ -113,9 +108,6 @@ while running:
   # Render Game
   distances = distanceTexture.regenerateImage(p, mapArr.get(), gameWindow.width(), gameWindow.height(), wallColors.bytes)
   window.clear()
-  #minimapRender.use(minimapImage)
-  #minimapRender.render()
-  #playerIcon.render()
   wallRender.use(gameWindow.width().uint, gameWindow.height().uint, distances, wallColors)
   wallRender.render()
   window.swap(gameWindow)
