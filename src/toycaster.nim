@@ -13,6 +13,7 @@ import toycasterpkg/window
 import toycasterpkg/event
 import toycasterpkg/player
 import toycasterpkg/input
+import toycasterpkg/mouse
 import toycasterpkg/tick
 import toycasterpkg/units
 import toycasterpkg/map
@@ -68,11 +69,21 @@ while running:
       direction: Direction
       rotation: Rotation
 
+  if input.isQuitKey(keyboard):
+    running = false
+    break
+
   if input.isDirectionKey(keyboard, direction):
      p.move(direction)
 
   if input.isRotationKey(keyboard, rotation):
      p.rotate(rotation)
+
+  let mouseRotation = getMouseRotation(gameWindow.width(), gameWindow.height())
+  if mouseRotation < 0:
+    p.rotate(Rotation.Left)
+  elif mouseRotation > 0:
+    p.rotate(Rotation.Right)
 
   # Handle Events
   let event = getEvent()

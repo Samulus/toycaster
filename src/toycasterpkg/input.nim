@@ -7,6 +7,9 @@ import sdl2/sdl
 import units
 
 const
+    # Exit
+    QuitKey = sdl.SCANCODE_ESCAPE
+
     # WASD
     W_ForwardKey = sdl.SCANCODE_W
     S_BackwardKey = sdl.SCANCODE_S
@@ -18,6 +21,10 @@ const
     Down_BackwardKey = sdl.SCANCODE_DOWN
     Left_LeftTurnKey = sdl.SCANCODE_LEFT
     Right_RightTurnkey = sdl.SCANCODE_RIGHT
+
+proc isQuitKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8]): bool =
+    return keyboardState[QuitKey] > 0
+
 
 proc isRotationKey*(keyboardState: ptr array[NUM_SCANCODES.int, uint8],
                     rotation: var Rotation): bool =

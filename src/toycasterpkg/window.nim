@@ -9,8 +9,8 @@ import opengl
 
 const
     Title = "Toycaster"
-    Width = 500
-    Height = 500
+    Width = 1920
+    Height = 1080
     WindowFlags = sdl.WINDOW_ALLOW_HIGHDPI or
                   sdl.WINDOW_RESIZABLE or
                   sdl.WINDOW_OPENGL
@@ -98,5 +98,14 @@ proc createGameWindow*(gameWindow: var GameWindow): bool =
 
     # Enable Capabilities
     easygl.enable(Capability.DEPTH_TEST)
+
+    # Take mouse focus
+    if not sdl.setHintWithPriority(sdl.HINT_MOUSE_RELATIVE_MODE_WARP, "1", sdl.HINT_OVERRIDE):
+      sdl.logError(sdl.LOG_CATEGORY_VIDEO, "setHintWithPriority failed")
+
+    if sdl.setRelativeMouseMode(true) < 0:
+      sdl.logError(sdl.LOG_CATEGORY_VIDEO, "setRelativeMouseMode(true) failed")
+      return false
+
     return true
 
