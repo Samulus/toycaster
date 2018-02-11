@@ -74,11 +74,11 @@ while running:
   if input.isRotationKey(keyboard, rotation):
      p.rotate(rotation)
 
-  let mouseRotation = getMouseRotation(gameWindow.width(), gameWindow.height())
-  if mouseRotation < 0:
-    p.rotate(Rotation.Left)
-  elif mouseRotation > 0:
-    p.rotate(Rotation.Right)
+  #let mouseRotation = getMouseRotation(gameWindow.width(), gameWindow.height())
+  #if mouseRotation < 0:
+    #p.rotate(Rotation.Left)
+  #elif mouseRotation > 0:
+    #p.rotate(Rotation.Right)
 
   # Handle Events
   let event = getEvent()
